@@ -36,21 +36,27 @@
   .menu-btn.friends{border-color:rgba(255,160,60,.35);color:#ffb850;text-shadow:0 0 8px rgba(255,160,60,.3)}
   .menu-btn.friends:hover{border-color:#ffb850;box-shadow:0 0 28px rgba(255,160,60,.25),0 8px 32px rgba(0,0,0,.4);text-shadow:0 0 10px #ffb850;color:#fff}
   .menu-btn:active{transform:translateY(0) scale(.97)}
-  .status-bar{position:fixed;bottom:0;left:0;right:0;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(58,32,96,.4);background:rgba(3,0,10,.78);backdrop-filter:blur(10px);z-index:20;font-size:10px;letter-spacing:2px;color:var(--dim);text-transform:uppercase}
   .status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--signal);margin-right:8px;animation:pulse-dot 2s infinite}
   @keyframes pulse-dot{0%,100%{opacity:1;box-shadow:0 0 4px var(--signal)}50%{opacity:.3;box-shadow:none}}
   .status-danger{color:var(--warn)}
   .status-danger .status-dot{background:var(--warn);animation:pulse-warn 1.2s infinite}
   @keyframes pulse-warn{0%,100%{opacity:1;box-shadow:0 0 6px var(--warn)}50%{opacity:.2;box-shadow:none}}
-  .tape-banner{position:fixed;top:28px;left:-10px;right:-10px;background:var(--warn);color:#000;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:900;letter-spacing:6px;text-transform:uppercase;padding:6px 0;transform:rotate(-1.5deg);z-index:50;white-space:nowrap;overflow:hidden;box-shadow:0 4px 20px rgba(255,60,0,.4);animation:fadeUp .8s .1s ease both}
+  .tape-banner{position:fixed;top:28px;left:-10px;right:-10px;background:var(--warn);color:#000;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:900;letter-spacing:6px;text-transform:uppercase;padding:6px 0;transform:rotate(-1.5deg);z-index:50;white-space:nowrap;overflow:hidden;box-shadow:0 4px 20px rgba(255,60,0,.4);transition:opacity .35s ease,visibility .35s ease}
+  .tape-banner.hidden{opacity:0!important;visibility:hidden;pointer-events:none}
   .tape-inner{display:inline-block;animation:scroll-tape 22s linear infinite}
   @keyframes scroll-tape{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-  .version-tag{position:fixed;top:14px;right:20px;font-size:9px;letter-spacing:3px;color:rgba(58,32,96,.6);z-index:60;text-transform:uppercase}
+  .version-tag{position:fixed;top:14px;right:20px;font-size:9px;letter-spacing:3px;color:rgba(58,32,96,.6);z-index:60;text-transform:uppercase;transition:opacity .35s ease,visibility .35s ease}
+  .version-tag.hidden{opacity:0!important;visibility:hidden;pointer-events:none}
+  .status-bar{position:fixed;bottom:0;left:0;right:0;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(58,32,96,.4);background:rgba(3,0,10,.78);backdrop-filter:blur(10px);z-index:20;font-size:10px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;transition:opacity .35s ease,visibility .35s ease}
+  .status-bar.hidden{opacity:0!important;visibility:hidden;pointer-events:none}
   @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
   /* SHIP INTERIOR CANVAS */
   #shipCanvas{position:fixed;inset:0;width:100%;height:100%;z-index:1;opacity:0;transition:opacity .8s ease;pointer-events:none}
   #shipCanvas.visible{opacity:1}
+  /* ASTRONAUT CANVAS */
+  #astronautCanvas{position:fixed;inset:0;width:100%;height:100%;z-index:1;opacity:0;transition:opacity .7s ease;pointer-events:none}
+  #astronautCanvas.visible{opacity:1}
 
   /* SINGLE PLAYER SCREEN */
   .solo-screen{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s ease}
@@ -69,16 +75,32 @@
   .solo-back:hover{color:var(--pale)}
 
   /* MAIN BUTTONS HIDE */
-  .menu-buttons{transition:opacity .4s ease,transform .4s ease}
-  .menu-buttons.hidden{opacity:0;pointer-events:none;transform:translateY(12px)}
-  .title-block{transition:opacity .4s ease,transform .4s ease}
-  .title-block.hidden{opacity:0;pointer-events:none;transform:translateY(-12px)}
+  .menu-buttons{transition:opacity .4s ease,transform .4s ease,visibility .4s ease}
+  .menu-buttons.hidden{opacity:0!important;visibility:hidden;pointer-events:none;transform:translateY(12px)}
+  .title-block{transition:opacity .4s ease,transform .4s ease,visibility .4s ease}
+  .title-block.hidden{opacity:0!important;visibility:hidden;pointer-events:none;transform:translateY(-12px)}
 
   /* X CLOSE BUTTON */
   .close-btn{position:fixed;top:18px;right:22px;z-index:300;background:rgba(3,0,10,.7);backdrop-filter:blur(10px);border:1px solid rgba(255,60,0,.4);color:rgba(255,100,50,.8);font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;width:40px;height:40px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transform:scale(.8)}
   .close-btn.visible{opacity:1;pointer-events:all;transform:scale(1)}
   .close-btn:hover{border-color:var(--warn);color:var(--warn);background:rgba(255,60,0,.1);box-shadow:0 0 16px rgba(255,60,0,.25)}
   .close-btn:active{transform:scale(.92)}
+
+  /* FRIENDS SCREEN */
+  .friends-screen{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;opacity:0;pointer-events:none;transition:opacity .4s ease}
+  .friends-screen.open{opacity:1;pointer-events:all}
+  .friends-screen.open .friends-box{transform:translateY(0);opacity:1}
+  .friends-box{display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;max-width:480px;padding:0 24px;transform:translateY(20px);opacity:0;transition:transform .45s ease,opacity .45s ease}
+  .friends-label{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;letter-spacing:6px;color:#ffb850;text-transform:uppercase;text-shadow:0 0 10px rgba(255,160,60,.4);text-align:center}
+  .friends-divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,160,60,.3),transparent)}
+  .search-wrap{position:relative;width:100%}
+  .search-input{width:100%;background:rgba(3,0,10,.75);backdrop-filter:blur(16px);border:1px solid rgba(255,160,60,.35);color:#fff;font-family:'Share Tech Mono',monospace;font-size:14px;letter-spacing:2px;padding:16px 50px 16px 20px;outline:none;transition:all .25s;caret-color:#ffb850}
+  .search-input::placeholder{color:rgba(255,184,80,.35);letter-spacing:2px}
+  .search-input:focus{border-color:#ffb850;box-shadow:0 0 24px rgba(255,160,60,.18);background:rgba(3,0,10,.88)}
+  .search-icon{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.4;pointer-events:none;transition:opacity .25s}
+  .search-input:focus~.search-icon{opacity:.8}
+  .search-results{width:100%;display:flex;flex-direction:column;gap:8px;min-height:48px}
+  .search-hint{font-size:11px;letter-spacing:2px;color:rgba(255,184,80,.3);text-transform:uppercase;text-align:center;padding:12px 0}
 </style>
 </head>
 <body>
@@ -111,7 +133,7 @@
       <span class="btn-icon">🛸</span>
       MULTIPLAYER
     </button>
-    <button class="menu-btn friends" onclick="btnClick(this)">
+    <button class="menu-btn friends" onclick="openFriends()">
       <span class="btn-icon">👾</span>
       FRIENDS
     </button>
@@ -119,9 +141,10 @@
 </div>
 
 <canvas id="shipCanvas"></canvas>
+<canvas id="astronautCanvas"></canvas>
 
 <!-- X CLOSE BUTTON -->
-<button class="close-btn" id="closeBtn" onclick="closeSolo()">✕</button>
+<button class="close-btn" id="closeBtn" onclick="closeScreen()">✕</button>
 
 <!-- SINGLE PLAYER SCREEN -->
 <div class="solo-screen" id="soloScreen">
@@ -131,6 +154,21 @@
     <div class="solo-buttons">
       <button class="solo-btn">CONTINUE</button>
       <button class="solo-btn">NEW SAVE</button>
+    </div>
+  </div>
+</div>
+
+<!-- FRIENDS SCREEN -->
+<div class="friends-screen" id="friendsScreen">
+  <div class="friends-box">
+    <div class="friends-label">👾 Find a Crew Member</div>
+    <div class="friends-divider"></div>
+    <div class="search-wrap">
+      <input class="search-input" id="friendSearch" type="text" placeholder="Search by username..." autocomplete="off" oninput="onSearch(this.value)" />
+      <span class="search-icon">🔍</span>
+    </div>
+    <div class="search-results" id="searchResults">
+      <div class="search-hint">Type a name to search the void...</div>
     </div>
   </div>
 </div>
@@ -758,15 +796,40 @@ function drawShipBG(t) {
 // UI TRANSITIONS
 // ═══════════════════════════════════════════════════════
 let mode = 'space';
+let activeScreen = null;
+
+function hideMenu() {
+  document.querySelector('.menu-buttons').classList.add('hidden');
+  document.querySelector('.title-block').classList.add('hidden');
+}
+
+function showMenu() {
+  document.querySelector('.menu-buttons').classList.remove('hidden');
+  document.querySelector('.title-block').classList.remove('hidden');
+}
+
+function showCloseBtn() {
+  document.getElementById('closeBtn').classList.add('visible');
+}
+
+function hideCloseBtn() {
+  document.getElementById('closeBtn').classList.remove('visible');
+}
+
+function closeScreen() {
+  if (activeScreen === 'solo') closeSolo();
+  else if (activeScreen === 'friends') closeFriends();
+}
 
 function btnClick(btn) {
   btn.style.transform='scale(0.97)';
   setTimeout(()=>btn.style.transform='', 120);
 }
 
+// ── SINGLE PLAYER ────────────────────────────────────
 function openSolo() {
-  document.querySelector('.menu-buttons').classList.add('hidden');
-  document.querySelector('.title-block').classList.add('hidden');
+  activeScreen = 'solo';
+  hideMenu();
   setTimeout(()=>{
     mode='ship';
     shipCanvas.classList.add('visible');
@@ -775,20 +838,61 @@ function openSolo() {
   }, 200);
   setTimeout(()=>{
     document.getElementById('soloScreen').classList.add('open');
-    document.getElementById('closeBtn').classList.add('visible');
+    showCloseBtn();
   }, 400);
 }
 
 function closeSolo() {
+  activeScreen = null;
   document.getElementById('soloScreen').classList.remove('open');
-  document.getElementById('closeBtn').classList.remove('visible');
+  hideCloseBtn();
   shipCanvas.classList.remove('visible');
   canvas.style.opacity='1';
+  setTimeout(()=>{ mode='space'; showMenu(); }, 500);
+}
+
+// ── FRIENDS ──────────────────────────────────────────
+function openFriends() {
+  activeScreen = 'friends';
+  hideMenu();
+  document.querySelector('.tape-banner').classList.add('hidden');
+  document.querySelector('.version-tag').classList.add('hidden');
+  document.querySelector('.status-bar').classList.add('hidden');
   setTimeout(()=>{
-    mode='space';
-    document.querySelector('.menu-buttons').classList.remove('hidden');
-    document.querySelector('.title-block').classList.remove('hidden');
-  }, 500);
+    astronautCanvas.classList.add('visible');
+    canvas.style.transition='opacity .7s ease';
+    canvas.style.opacity='0';
+  }, 150);
+  setTimeout(()=>{
+    document.getElementById('friendsScreen').classList.add('open');
+    showCloseBtn();
+    setTimeout(()=>document.getElementById('friendSearch').focus(), 100);
+  }, 350);
+}
+
+function closeFriends() {
+  activeScreen = null;
+  document.getElementById('friendsScreen').classList.remove('open');
+  document.getElementById('friendSearch').value = '';
+  document.getElementById('searchResults').innerHTML = '<div class="search-hint">Type a name to search the void...</div>';
+  hideCloseBtn();
+  astronautCanvas.classList.remove('visible');
+  canvas.style.opacity='1';
+  document.querySelector('.tape-banner').classList.remove('hidden');
+  document.querySelector('.version-tag').classList.remove('hidden');
+  document.querySelector('.status-bar').classList.remove('hidden');
+  setTimeout(()=>showMenu(), 400);
+}
+
+function onSearch(val) {
+  const results = document.getElementById('searchResults');
+  const v = val.trim();
+  if (!v) {
+    results.innerHTML = '<div class="search-hint">Type a name to search the void...</div>';
+    return;
+  }
+  // Placeholder — no real backend yet
+  results.innerHTML = '<div class="search-hint">No crew members found in this sector...</div>';
 }
 
 // Ship loop runs alongside space loop
@@ -801,6 +905,544 @@ function shipLoop(t) {
   requestAnimationFrame(shipLoop);
 }
 requestAnimationFrame(shipLoop);
+
+// ═══════════════════════════════════════════════════════
+// ASTRONAUT PANORAMA
+// ═══════════════════════════════════════════════════════
+const astronautCanvas = document.getElementById('astronautCanvas');
+const aC = astronautCanvas.getContext('2d');
+
+// Suit color palettes [helmet tint, suit body, suit accent]
+const SUIT_PALETTES = [
+  ['#a0d8ff', '#e8e8f0', '#4488cc'],   // classic white/blue
+  ['#ffcc88', '#f0e8d8', '#cc7722'],   // warm orange
+  ['#aaffcc', '#d8f0e8', '#22aa66'],   // green
+  ['#ffaacc', '#f0d8e8', '#cc2266'],   // pink
+  ['#ccaaff', '#e8d8f0', '#6622cc'],   // purple
+  ['#ff8888', '#f0d8d8', '#cc2222'],   // red
+  ['#88ffff', '#d8f0f0', '#228888'],   // cyan
+  ['#ffff88', '#f0f0d8', '#aaaa22'],   // yellow
+];
+
+// Star field for astronaut scene (separate from main)
+const aStars = Array.from({length: 300}, () => ({
+  x: Math.random(), y: Math.random(),
+  r: 0.4 + Math.random() * 1.4,
+  tw: Math.random() * Math.PI * 2,
+  ts: 0.006 + Math.random() * 0.014,
+  col: Math.random() < 0.1 ? [180,220,255] : Math.random() < 0.08 ? [255,210,160] : [210,205,255],
+}));
+
+// Nebula wisps for astronaut scene
+const aNebulas = [
+  {x:0.12, y:0.45, rx:320, ry:200, rgb:'80,0,160', a:0.12},
+  {x:0.38, y:0.25, rx:260, ry:180, rgb:'0,50,180', a:0.10},
+  {x:0.60, y:0.65, rx:300, ry:220, rgb:'160,20,80', a:0.11},
+  {x:0.82, y:0.35, rx:280, ry:160, rgb:'50,0,140', a:0.13},
+];
+
+function makeAstronaut() {
+  const pal = SUIT_PALETTES[Math.floor(Math.random() * SUIT_PALETTES.length)];
+  // Random tumble axis & wobble
+  return {
+    x: Math.random(),           // world fraction
+    y: 0.05 + Math.random() * 0.88,
+    scale: 0.45 + Math.random() * 0.9,
+    vx: -(0.00008 + Math.random() * 0.00022),  // drift speed (world fraction/frame)
+    vy: (Math.random() - 0.5) * 0.00006,
+    rot: Math.random() * Math.PI * 2,
+    rotV: (Math.random() - 0.5) * 0.008,
+    bobPhase: Math.random() * Math.PI * 2,
+    bobSpeed: 0.005 + Math.random() * 0.008,
+    bobAmp: 0.003 + Math.random() * 0.006,
+    pal,
+    // Limb animation phases
+    armL: Math.random() * Math.PI * 2,
+    armR: Math.random() * Math.PI * 2,
+    legL: Math.random() * Math.PI * 2,
+    legR: Math.random() * Math.PI * 2,
+    limbSpeed: 0.008 + Math.random() * 0.012,
+    // Visor shine phase
+    shinePhase: Math.random() * Math.PI * 2,
+    // Tether (some have one)
+    hasTether: Math.random() < 0.35,
+    tetherLen: 60 + Math.random() * 80,
+    tetherAngle: Math.random() * Math.PI * 2,
+  };
+}
+
+// World is 3x screen wide, astronauts pan left
+const A_WORLD = 3;
+let aCamX = 0;
+const A_CAM_SPEED = 0.15;
+let astronauts = [];
+const A_COUNT = 18;
+
+function makeAstronaut(xFrac, yFrac) {
+  const pal = SUIT_PALETTES[Math.floor(Math.random() * SUIT_PALETTES.length)];
+  return {
+    x: xFrac,
+    y: yFrac,
+    scale: 0.45 + Math.random() * 0.9,
+    vx: -(0.00008 + Math.random() * 0.00022),
+    vy: (Math.random() - 0.5) * 0.00006,
+    rot: Math.random() * Math.PI * 2,
+    rotV: (Math.random() - 0.5) * 0.008,
+    bobPhase: Math.random() * Math.PI * 2,
+    bobSpeed: 0.005 + Math.random() * 0.008,
+    bobAmp: 0.003 + Math.random() * 0.006,
+    pal,
+    armL: Math.random() * Math.PI * 2,
+    armR: Math.random() * Math.PI * 2,
+    legL: Math.random() * Math.PI * 2,
+    legR: Math.random() * Math.PI * 2,
+    limbSpeed: 0.008 + Math.random() * 0.012,
+    shinePhase: Math.random() * Math.PI * 2,
+    hasTether: Math.random() < 0.35,
+    tetherLen: 60 + Math.random() * 80,
+    tetherAngle: Math.random() * Math.PI * 2,
+  };
+}
+
+function initAstronauts() {
+  astronauts = [];
+  // Divide world into a grid: 6 columns x 3 rows = 18 slots
+  const COLS = 6, ROWS = 3;
+  const cellW = 1.0 / COLS; // fraction of world
+  const cellH = 0.88 / ROWS;
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS; col++) {
+      // Place each astronaut near the center of its cell, with small jitter
+      const xFrac = (col + 0.2 + Math.random() * 0.6) * cellW;
+      const yFrac = 0.05 + (row + 0.15 + Math.random() * 0.7) * cellH;
+      astronauts.push(makeAstronaut(xFrac, yFrac));
+    }
+  }
+}
+
+function drawAstronautBG(t) {
+  // Deep space background
+  const bg = aC.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0,   '#020012');
+  bg.addColorStop(0.5, '#04000e');
+  bg.addColorStop(1,   '#010009');
+  aC.fillStyle = bg; aC.fillRect(0, 0, W, H);
+
+  // Nebula wisps
+  aNebulas.forEach(n => {
+    const sx = n.x * W * A_WORLD - aCamX * 0.3;
+    const wrapped = ((sx % (W * A_WORLD)) + W * A_WORLD) % (W * A_WORLD);
+    if (wrapped > W + 400) return;
+    aC.save(); aC.scale(1, n.ry / n.rx);
+    const sy2 = n.y * H * (n.rx / n.ry);
+    const gr = aC.createRadialGradient(wrapped, sy2, 0, wrapped, sy2, n.rx);
+    gr.addColorStop(0, `rgba(${n.rgb},${n.a})`);
+    gr.addColorStop(0.5, `rgba(${n.rgb},${n.a * 0.35})`);
+    gr.addColorStop(1, `rgba(${n.rgb},0)`);
+    aC.fillStyle = gr; aC.beginPath(); aC.arc(wrapped, sy2, n.rx, 0, Math.PI*2); aC.fill();
+    aC.restore();
+  });
+
+  // Stars (parallax slow layer)
+  aStars.forEach(s => {
+    let sx = s.x * W * A_WORLD - aCamX * 0.18;
+    sx = ((sx % (W * A_WORLD)) + W * A_WORLD) % (W * A_WORLD);
+    if (sx > W + 4) return;
+    s.tw += s.ts;
+    const tw = 0.5 + 0.5 * Math.sin(s.tw);
+    const [r, g, b] = s.col;
+    const alpha = tw * 0.75;
+    if (s.r > 1.1) {
+      const gl = aC.createRadialGradient(sx, s.y*H, 0, sx, s.y*H, s.r*4);
+      gl.addColorStop(0, `rgba(${r},${g},${b},${alpha*0.3})`);
+      gl.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      aC.fillStyle = gl; aC.beginPath(); aC.arc(sx, s.y*H, s.r*4, 0, Math.PI*2); aC.fill();
+    }
+    aC.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+    aC.beginPath(); aC.arc(sx, s.y*H, s.r, 0, Math.PI*2); aC.fill();
+  });
+}
+
+function drawAstronautFigure(ast, sx, sy, t) {
+  const sc = ast.scale * Math.min(W, H) * 0.055;
+  const [helmetCol, suitCol, accentCol] = ast.pal;
+
+  // Advance phases
+  ast.armL     += ast.limbSpeed * 0.5;
+  ast.armR     += ast.limbSpeed * 0.6;
+  ast.legL     += ast.limbSpeed * 0.45;
+  ast.legR     += ast.limbSpeed * 0.5;
+  ast.shinePhase += 0.018;
+  ast.bobPhase   += ast.bobSpeed;
+  const bob = Math.sin(ast.bobPhase) * ast.bobAmp * H;
+
+  // ── SKELETON DEFINITION ───────────────────────────────
+  // Zero-G floating pose: limbs drift loosely, elbows/knees naturally bent
+  // All angles are in radians, measured from parent segment's down-axis
+  const baseFloat = Math.sin(ast.bobPhase * 0.7) * 0.08;
+
+  // Upper arm angles from shoulder (positive = forward/down)
+  const uArmLAng = -0.55 + Math.sin(ast.armL) * 0.35 + baseFloat;
+  const uArmRAng =  0.55 + Math.sin(ast.armR + Math.PI*0.6) * 0.35 - baseFloat;
+
+  // Elbow bend (always bent slightly inward in zero-G)
+  const elbowLAng = 0.5 + Math.sin(ast.armL * 1.3 + 1.0) * 0.3;
+  const elbowRAng = 0.5 + Math.sin(ast.armR * 1.3 + 2.5) * 0.3;
+
+  // Wrist slight droop
+  const wristLAng = Math.sin(ast.armL * 0.8) * 0.2;
+  const wristRAng = Math.sin(ast.armR * 0.8 + 1.2) * 0.2;
+
+  // Hip angles (legs splay outward naturally in zero-G)
+  const uLegLAng = -0.25 + Math.sin(ast.legL) * 0.22 + baseFloat * 0.5;
+  const uLegRAng =  0.25 + Math.sin(ast.legR + Math.PI*0.5) * 0.22 - baseFloat * 0.5;
+
+  // Knee bend
+  const kneeLAng = -(0.45 + Math.sin(ast.legL * 1.2 + 0.8) * 0.25);
+  const kneeRAng = -(0.45 + Math.sin(ast.legR * 1.2 + 2.2) * 0.25);
+
+  // Ankle
+  const ankleLAng = Math.sin(ast.legL * 0.7) * 0.15;
+  const ankleRAng = Math.sin(ast.legR * 0.7 + 1.5) * 0.15;
+
+  // ── SEGMENT LENGTHS (in sc units) ────────────────────
+  const UPPER_ARM = sc * 0.52;
+  const LOWER_ARM = sc * 0.44;
+  const UPPER_LEG = sc * 0.56;
+  const LOWER_LEG = sc * 0.50;
+
+  // ── FORWARD KINEMATICS helper ─────────────────────────
+  // Given a start point and cumulative world angle, returns end point
+  function fk(x, y, worldAngle, length) {
+    return [x + Math.sin(worldAngle) * length, y + Math.cos(worldAngle) * length];
+  }
+
+  // ── LIMB SEGMENT DRAW helper ─────────────────────────
+  // Draws a tapered capsule from (x1,y1) to (x2,y2)
+  // r1=start radius, r2=end radius, col1/col2 gradient colors
+  function drawSegment(x1,y1, x2,y2, r1, r2, col1, col2, shadeOffset=0) {
+    const dx = x2-x1, dy = y2-y1;
+    const len = Math.sqrt(dx*dx+dy*dy) || 0.01;
+    const nx = -dy/len, ny = dx/len; // normal
+
+    // Tapered polygon
+    aC.beginPath();
+    aC.moveTo(x1 + nx*r1, y1 + ny*r1);
+    aC.lineTo(x2 + nx*r2, y2 + ny*r2);
+    aC.arcTo(x2 + nx*r2*2, y2 + ny*r2*2, x2 - nx*r2, y2 - ny*r2, r2);
+    aC.lineTo(x2 - nx*r2, y2 - ny*r2);
+    aC.lineTo(x1 - nx*r1, y1 - ny*r1);
+    aC.arcTo(x1 - nx*r1*2, y1 - ny*r1*2, x1 + nx*r1, y1 + ny*r1, r1);
+    aC.closePath();
+
+    const g = aC.createLinearGradient(x1,y1,x2,y2);
+    g.addColorStop(0, col1); g.addColorStop(1, col2);
+    aC.fillStyle = g; aC.fill();
+
+    // Side shading
+    const sg2 = aC.createLinearGradient(
+      x1 + nx*(r1+shadeOffset), y1 + ny*(r1+shadeOffset),
+      x1 - nx*(r1+shadeOffset), y1 - ny*(r1+shadeOffset)
+    );
+    sg2.addColorStop(0,   'rgba(255,255,255,0.15)');
+    sg2.addColorStop(0.4, 'rgba(255,255,255,0.04)');
+    sg2.addColorStop(1,   'rgba(0,0,0,0.25)');
+    aC.fillStyle = sg2; aC.fill();
+  }
+
+  function drawJoint(x, y, r, col) {
+    const jg = aC.createRadialGradient(x-r*0.3, y-r*0.3, 0, x, y, r);
+    jg.addColorStop(0, '#fff'); jg.addColorStop(0.4, col); jg.addColorStop(1, darken(col));
+    aC.fillStyle = jg;
+    aC.beginPath(); aC.arc(x, y, r, 0, Math.PI*2); aC.fill();
+  }
+
+  function darken(hex) {
+    // Simple darkening — parse and halve
+    const n = parseInt(hex.replace('#',''), 16);
+    const r2 = Math.floor(((n>>16)&0xff)*0.55);
+    const g2 = Math.floor(((n>>8)&0xff)*0.55);
+    const b2 = Math.floor((n&0xff)*0.55);
+    return `rgb(${r2},${g2},${b2})`;
+  }
+
+  // ── COMPUTE JOINT WORLD POSITIONS ────────────────────
+  // Body center origin
+  const cx = sx, cy = sy + bob;
+
+  // Body orientation (slowly tumbling)
+  const bodyAng = ast.rot; // overall tumble
+
+  // In local body space, then rotated by bodyAng
+  function bodyToWorld(lx, ly) {
+    const cos = Math.cos(bodyAng), sin = Math.sin(bodyAng);
+    return [cx + cos*lx - sin*ly, cy + sin*lx + cos*ly];
+  }
+  function angToWorld(a) { return a + bodyAng; }
+
+  // Anchor points in body-local space
+  const shoulderLLocal = [-sc*0.30, -sc*0.38];
+  const shoulderRLocal = [ sc*0.30, -sc*0.38];
+  const hipLLocal      = [-sc*0.17,  sc*0.32];
+  const hipRLocal      = [ sc*0.17,  sc*0.32];
+
+  const [slx,sly] = bodyToWorld(...shoulderLLocal);
+  const [srx,sry] = bodyToWorld(...shoulderRLocal);
+  const [hlx,hly] = bodyToWorld(...hipLLocal);
+  const [hrx,hry] = bodyToWorld(...hipRLocal);
+
+  // Left arm chain
+  const laAng  = angToWorld(uArmLAng - Math.PI*0.12); // upper arm world angle
+  const [lEx,lEy] = fk(slx, sly, laAng, UPPER_ARM);   // elbow
+  const lfAng  = laAng + elbowLAng;
+  const [lwx,lwy] = fk(lEx, lEy, lfAng, LOWER_ARM);   // wrist
+  const lhAng  = lfAng + wristLAng;
+  const [lgx,lgy] = fk(lwx, lwy, lhAng, sc*0.14);     // glove tip
+
+  // Right arm chain
+  const raAng  = angToWorld(uArmRAng + Math.PI*0.12);
+  const [rEx,rEy] = fk(srx, sry, raAng, UPPER_ARM);
+  const rfAng  = raAng - elbowRAng;
+  const [rwx,rwy] = fk(rEx, rEy, rfAng, LOWER_ARM);
+  const rhAng  = rfAng + wristRAng;
+  const [rgx,rgy] = fk(rwx, rwy, rhAng, sc*0.14);
+
+  // Left leg chain
+  const llAng  = angToWorld(uLegLAng + Math.PI*0.05);
+  const [lKx,lKy] = fk(hlx, hly, llAng, UPPER_LEG);   // knee
+  const lsAng  = llAng + kneeLAng;
+  const [lAx,lAy] = fk(lKx, lKy, lsAng, LOWER_LEG);   // ankle
+  const ltAng  = lsAng + ankleLAng;
+  const [lBx,lBy] = fk(lAx, lAy, ltAng, sc*0.18);     // boot tip
+
+  // Right leg chain
+  const rlAng  = angToWorld(uLegRAng + Math.PI*0.05);
+  const [rKx,rKy] = fk(hrx, hry, rlAng, UPPER_LEG);
+  const rsAng  = rlAng + kneeRAng;
+  const [rAx,rAy] = fk(rKx, rKy, rsAng, LOWER_LEG);
+  const rtAng  = rsAng + ankleRAng;
+  const [rBx,rBy] = fk(rAx, rAy, rtAng, sc*0.18);
+
+  // ── DRAW ORDER (back to front) ────────────────────────
+  aC.save();
+
+  // Tether
+  if (ast.hasTether) {
+    const tx = cx + Math.cos(ast.tetherAngle + bodyAng) * ast.tetherLen;
+    const ty = cy + Math.sin(ast.tetherAngle + bodyAng) * ast.tetherLen;
+    aC.strokeStyle = 'rgba(200,200,220,0.3)'; aC.lineWidth = sc*0.05;
+    aC.setLineDash([sc*0.28, sc*0.18]);
+    aC.beginPath(); aC.moveTo(cx, cy); aC.lineTo(tx, ty); aC.stroke();
+    aC.setLineDash([]);
+    aC.fillStyle='rgba(180,200,255,0.5)';
+    aC.beginPath(); aC.arc(tx,ty,sc*0.1,0,Math.PI*2); aC.fill();
+  }
+
+  // ── BACK ARM (whichever is rotated "behind") ─────────
+  // Simple heuristic: right arm drawn first (behind) when body not tilted too far
+  const backFirst = Math.sin(bodyAng) > 0;
+
+  function drawArm(x1,y1, ex,ey, wx,wy, gx,gy, side) {
+    const isLeft = side==='L';
+    drawSegment(x1,y1, ex,ey, sc*0.13, sc*0.11, suitCol, accentCol, 0);
+    drawJoint(ex, ey, sc*0.115, accentCol);
+    drawSegment(ex,ey, wx,wy, sc*0.10, sc*0.085, suitCol, accentCol, 0);
+    drawJoint(wx, wy, sc*0.09, accentCol);
+    // Glove
+    const glg = aC.createRadialGradient(gx-sc*.03,gy-sc*.03,0,gx,gy,sc*0.13);
+    glg.addColorStop(0,'#555'); glg.addColorStop(1,'#111');
+    aC.fillStyle=glg; aC.beginPath(); aC.arc(gx,gy,sc*0.13,0,Math.PI*2); aC.fill();
+  }
+
+  function drawLeg(x1,y1, kx,ky, ax,ay, bx,by) {
+    drawSegment(x1,y1, kx,ky, sc*0.155, sc*0.125, suitCol, accentCol, 0);
+    drawJoint(kx, ky, sc*0.13, accentCol);
+    drawSegment(kx,ky, ax,ay, sc*0.115, sc*0.09, suitCol, darken(suitCol), 0);
+    drawJoint(ax, ay, sc*0.095, '#888');
+    // Boot
+    const btAng2 = Math.atan2(bx-ax, by-ay);
+    const bLen = sc*0.22;
+    const bfx = ax + Math.sin(btAng2)*bLen*0.6 + Math.cos(btAng2)*sc*0.08;
+    const bfy = ay + Math.cos(btAng2)*bLen*0.6 - Math.sin(btAng2)*sc*0.08;
+    drawSegment(ax,ay, bfx,bfy, sc*0.11, sc*0.135, '#222', '#111', 0);
+    // Boot toe
+    const bg2 = aC.createRadialGradient(bfx,bfy,0,bfx,bfy,sc*0.14);
+    bg2.addColorStop(0,'#333'); bg2.addColorStop(1,'#0a0a0a');
+    aC.fillStyle=bg2; aC.beginPath(); aC.arc(bfx,bfy,sc*0.14,0,Math.PI*2); aC.fill();
+  }
+
+  // Back limbs
+  if (backFirst) {
+    drawArm(srx,sry, rEx,rEy, rwx,rwy, rgx,rgy, 'R');
+    drawLeg(hrx,hry, rKx,rKy, rAx,rAy, rBx,rBy);
+  } else {
+    drawArm(slx,sly, lEx,lEy, lwx,lwy, lgx,lgy, 'L');
+    drawLeg(hlx,hly, lKx,lKy, lAx,lAy, lBx,lBy);
+  }
+
+  // ── BACKPACK ─────────────────────────────────────────
+  const [bpx,bpy] = bodyToWorld(sc*0.02, -sc*0.05);
+  const bpg2 = aC.createRadialGradient(bpx-sc*.12,bpy-sc*.12,0,bpx,bpy,sc*.38);
+  bpg2.addColorStop(0,'#c8ccd8'); bpg2.addColorStop(0.5,'#8890a0'); bpg2.addColorStop(1,'#505868');
+  aC.fillStyle=bpg2;
+  aC.save();
+  aC.translate(bpx,bpy); aC.rotate(bodyAng);
+  aC.beginPath(); aC.roundRect(-sc*.22,-sc*.42,sc*.44,sc*.82,sc*.09); aC.fill();
+  // Pack ribs
+  aC.strokeStyle='rgba(80,100,130,0.45)'; aC.lineWidth=sc*.025;
+  for(let i=0;i<3;i++){const py2=-sc*.28+i*sc*.22;aC.beginPath();aC.moveTo(-sc*.18,py2);aC.lineTo(sc*.18,py2);aC.stroke();}
+  // Thrusters
+  [[-sc*.16,sc*.32],[sc*.16,sc*.32]].forEach(([nx2,ny2])=>{
+    aC.fillStyle='#2a2a35'; aC.beginPath(); aC.ellipse(nx2,ny2,sc*.06,sc*.09,0,0,Math.PI*2); aC.fill();
+    const tg2=aC.createRadialGradient(nx2,ny2+sc*.06,0,nx2,ny2+sc*.06,sc*.05);
+    tg2.addColorStop(0,'rgba(80,160,255,0.5)');tg2.addColorStop(1,'rgba(0,80,255,0)');
+    aC.fillStyle=tg2;aC.beginPath();aC.arc(nx2,ny2+sc*.07,sc*.05,0,Math.PI*2);aC.fill();
+  });
+  aC.restore();
+
+  // ── TORSO ─────────────────────────────────────────────
+  const [tx2,ty2] = bodyToWorld(0, -sc*0.05);
+  const trg = aC.createRadialGradient(tx2-sc*.14,ty2-sc*.18,sc*.03,tx2,ty2,sc*.40);
+  trg.addColorStop(0,'#ffffff'); trg.addColorStop(0.35,suitCol); trg.addColorStop(1,accentCol);
+  aC.fillStyle=trg;
+  aC.save(); aC.translate(tx2,ty2); aC.rotate(bodyAng);
+  aC.beginPath(); aC.roundRect(-sc*.28,-sc*.48,sc*.56,sc*.78,sc*.11); aC.fill();
+  // Chest stripe
+  aC.fillStyle=accentCol;
+  aC.beginPath(); aC.roundRect(-sc*.26,-sc*.12,sc*.52,sc*.11,sc*.04); aC.fill();
+  // Mission badge
+  const bdg=aC.createRadialGradient(-sc*.05,-sc*.06,0,-sc*.05,-sc*.06,sc*.09);
+  bdg.addColorStop(0,'rgba(255,255,255,0.9)');bdg.addColorStop(1,accentCol);
+  aC.fillStyle=bdg; aC.beginPath(); aC.arc(-sc*.05,-sc*.06,sc*.08,0,Math.PI*2); aC.fill();
+  aC.fillStyle=darken(accentCol); aC.font=`bold ${sc*.072}px monospace`;
+  aC.textAlign='center'; aC.textBaseline='middle'; aC.fillText('VW',-sc*.05,-sc*.06);
+  // Shoulder joint covers
+  [[-sc*.28,-sc*.38],[sc*.28,-sc*.38]].forEach(([jx,jy])=>{
+    const sg3=aC.createRadialGradient(jx-sc*.05,jy-sc*.05,0,jx,jy,sc*.14);
+    sg3.addColorStop(0,'#dde2ee');sg3.addColorStop(1,accentCol);
+    aC.fillStyle=sg3;aC.beginPath();aC.arc(jx,jy,sc*.14,0,Math.PI*2);aC.fill();
+  });
+  // Hip joint covers
+  [[-sc*.17,sc*.30],[sc*.17,sc*.30]].forEach(([jx,jy])=>{
+    const hj=aC.createRadialGradient(jx-sc*.03,jy-sc*.03,0,jx,jy,sc*.11);
+    hj.addColorStop(0,'#ccd0de');hj.addColorStop(1,accentCol);
+    aC.fillStyle=hj;aC.beginPath();aC.arc(jx,jy,sc*.11,0,Math.PI*2);aC.fill();
+  });
+  aC.restore();
+
+  // ── FRONT LIMBS ───────────────────────────────────────
+  if (backFirst) {
+    drawArm(slx,sly, lEx,lEy, lwx,lwy, lgx,lgy, 'L');
+    drawLeg(hlx,hly, lKx,lKy, lAx,lAy, lBx,lBy);
+  } else {
+    drawArm(srx,sry, rEx,rEy, rwx,rwy, rgx,rgy, 'R');
+    drawLeg(hrx,hry, rKx,rKy, rAx,rAy, rBx,rBy);
+  }
+
+  // ── NECK RING ─────────────────────────────────────────
+  const [nkx,nky] = bodyToWorld(0, -sc*0.50);
+  aC.save(); aC.translate(nkx,nky); aC.rotate(bodyAng);
+  const nrg=aC.createLinearGradient(-sc*.20,0,sc*.20,0);
+  nrg.addColorStop(0,'#aab0be');nrg.addColorStop(0.5,'#e0e4f0');nrg.addColorStop(1,'#7a8090');
+  aC.fillStyle=nrg; aC.beginPath(); aC.ellipse(0,0,sc*.21,sc*.09,0,0,Math.PI*2); aC.fill();
+  aC.restore();
+
+  // ── HELMET ────────────────────────────────────────────
+  const [hx,hy] = bodyToWorld(0, -sc*0.82);
+  const hmR = sc*0.40;
+
+  // Helmet shell
+  const hmg=aC.createRadialGradient(hx-hmR*.4,hy-hmR*.4,hmR*.05,hx,hy,hmR);
+  hmg.addColorStop(0,'#ffffff'); hmg.addColorStop(0.3,suitCol);
+  hmg.addColorStop(0.65,helmetCol); hmg.addColorStop(1,accentCol);
+  aC.fillStyle=hmg; aC.beginPath(); aC.arc(hx,hy,hmR,0,Math.PI*2); aC.fill();
+
+  // Visor
+  const vg2=aC.createRadialGradient(hx-sc*.08,hy-sc*.05,0,hx,hy,sc*.30);
+  vg2.addColorStop(0,'rgba(90,190,255,0.4)');
+  vg2.addColorStop(0.5,'rgba(0,90,200,0.72)');
+  vg2.addColorStop(1,'rgba(0,20,60,0.92)');
+  aC.fillStyle=vg2;
+  aC.save(); aC.translate(hx,hy); aC.rotate(bodyAng);
+  aC.beginPath(); aC.ellipse(0,0,sc*.27,sc*.23,0,0,Math.PI*2); aC.fill();
+  // Visor shine streak
+  const shA=0.22+0.14*Math.sin(ast.shinePhase);
+  const svg=aC.createRadialGradient(-sc*.08,-sc*.1,0,-sc*.04,-sc*.07,sc*.17);
+  svg.addColorStop(0,`rgba(255,255,255,${shA})`); svg.addColorStop(1,'rgba(255,255,255,0)');
+  aC.fillStyle=svg; aC.beginPath(); aC.ellipse(-sc*.06,-sc*.09,sc*.13,sc*.08,-0.35,0,Math.PI*2); aC.fill();
+  aC.restore();
+
+  // Helmet detail ring
+  aC.strokeStyle='rgba(160,180,220,0.35)'; aC.lineWidth=sc*.028;
+  aC.beginPath(); aC.arc(hx,hy,hmR*.88,0,Math.PI*2); aC.stroke();
+
+  // Side LEDs
+  const lLed=[hx+Math.cos(bodyAng-Math.PI*.55)*hmR*.92, hy+Math.sin(bodyAng-Math.PI*.55)*hmR*.92];
+  const rLed=[hx+Math.cos(bodyAng+Math.PI*.55)*hmR*.92, hy+Math.sin(bodyAng+Math.PI*.55)*hmR*.92];
+  [[...lLed,'#ff4040'],[...rLed,'#40ff90']].forEach(([lx2,ly2,col])=>{
+    const lg2=aC.createRadialGradient(lx2,ly2,0,lx2,ly2,sc*.09);
+    lg2.addColorStop(0,col);lg2.addColorStop(1,'transparent');
+    aC.fillStyle=lg2;aC.beginPath();aC.arc(lx2,ly2,sc*.09,0,Math.PI*2);aC.fill();
+    aC.fillStyle=col;aC.beginPath();aC.arc(lx2,ly2,sc*.038,0,Math.PI*2);aC.fill();
+  });
+
+  // Antenna on larger suits
+  if (ast.scale > 0.85) {
+    const antBase=[hx+Math.cos(bodyAng-Math.PI*.35)*hmR*.9, hy+Math.sin(bodyAng-Math.PI*.35)*hmR*.9];
+    const antTip=[antBase[0]+Math.cos(bodyAng-Math.PI*.35)*sc*.38, antBase[1]+Math.sin(bodyAng-Math.PI*.35)*sc*.38];
+    aC.strokeStyle='rgba(180,210,255,0.55)'; aC.lineWidth=sc*.035;
+    aC.beginPath(); aC.moveTo(...antBase); aC.lineTo(...antTip); aC.stroke();
+    const antGlow=aC.createRadialGradient(...antTip,0,...antTip,sc*.07);
+    antGlow.addColorStop(0,'rgba(0,255,180,0.9)');antGlow.addColorStop(1,'transparent');
+    aC.fillStyle=antGlow;aC.beginPath();aC.arc(...antTip,sc*.07,0,Math.PI*2);aC.fill();
+    aC.fillStyle='rgba(0,255,180,0.8)';aC.beginPath();aC.arc(...antTip,sc*.04,0,Math.PI*2);aC.fill();
+  }
+
+  aC.restore();
+}
+
+function astronautLoop(t) {
+  if (activeScreen !== 'friends') {
+    requestAnimationFrame(astronautLoop);
+    return;
+  }
+
+  astronautCanvas.width = W;
+  astronautCanvas.height = H;
+  aCamX = (aCamX + A_CAM_SPEED) % (W * A_WORLD);
+
+  // Update astronaut positions
+  astronauts.forEach(ast => {
+    ast.x += ast.vx;
+    ast.y = Math.max(0.04, Math.min(0.94, ast.y + ast.vy));
+    ast.rot += ast.rotV;
+  });
+
+  drawAstronautBG(t);
+
+  // Sort by scale so smaller (distant) draw first
+  [...astronauts].sort((a,b) => a.scale - b.scale).forEach((ast, i) => {
+    let sx = ast.x * W * A_WORLD - aCamX;
+    if (sx < -120) sx += W * A_WORLD;
+    if (sx > W + 120) return;
+    const sy = ast.y * H;
+    drawAstronautFigure(ast, sx, sy, t);
+  });
+
+  // Respawn off-screen astronauts into a random row band on the right
+  astronauts.forEach((ast, i) => {
+    if (ast.x * W * A_WORLD - aCamX < -200) {
+      const row = i % 3;
+      const yFrac = 0.05 + (row + 0.15 + Math.random() * 0.7) * (0.88 / 3);
+      const newAst = makeAstronaut((aCamX + W * A_WORLD + 80 + Math.random() * 120) / (W * A_WORLD), yFrac);
+      astronauts[i] = newAst;
+    }
+  });
+  requestAnimationFrame(astronautLoop);
+}
+
+initAstronauts();
+requestAnimationFrame(astronautLoop);
 </script>
 </body>
 </html>
