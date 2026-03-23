@@ -653,7 +653,6 @@ const PLAYER_RADIUS = 0.22;
 // Input
 const keys = {};
 let mouseDX = 0;
-let pointerLocked = false;
 
 // ── TEXTURES (procedural) ──────────────────────────
 // Pre-render wall textures onto offscreen canvases
@@ -1035,18 +1034,6 @@ function renderHUD(ctx, W, H) {
   lf.addColorStop(0,'rgba(255,255,255,0.04)'); lf.addColorStop(1,'rgba(255,255,255,0)');
   ctx.fillStyle=lf; ctx.fillRect(0,0,W,H*0.25);
 
-  // Click to look prompt
-  if (!pointerLocked) {
-    ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(255,255,255,0.45)';
-    ctx.font = '13px "Share Tech Mono"';
-    ctx.fillText('CLICK TO LOOK AROUND', W*0.5, H*0.5 + 38);
-    ctx.font = '10px "Share Tech Mono"';
-    ctx.fillStyle = 'rgba(255,255,255,0.22)';
-    ctx.fillText('WASD · MOVE   MOUSE · LOOK   AUTO-OPEN DOORS', W*0.5, H*0.5 + 58);
-    ctx.textAlign = 'left';
-  }
-
   // Scanlines
   for (let sy = 0; sy < H; sy += 3) {
     ctx.fillStyle = 'rgba(0,0,0,0.04)';
@@ -1102,21 +1089,13 @@ document.addEventListener('keyup', e => {
   keys[e.key.toLowerCase()] = false;
 });
 
-gameCanvas.addEventListener('click', () => {
-  if (gameRunning && !pointerLocked) {
-    gameCanvas.requestPointerLock();
-  }
-});
-
-document.addEventListener('pointerlockchange', () => {
-  pointerLocked = document.pointerLockElement === gameCanvas;
-});
-
 document.addEventListener('mousemove', e => {
-  if (pointerLocked && gameRunning) {
-    mouseDX += e.movementX;
+  if (gameRunning) {
+    mouseDX += e.movementX || e.clientX - (lastMouseX || e.clientX);
+    lastMouseX = e.clientX;
   }
 });
+let lastMouseX = 0;
 
 // ── CUTSCENE ──────────────────────────────────────────
 const BRIEFING_LINES = [
