@@ -139,49 +139,10 @@
   .card-btn.decline{border-color:rgba(255,60,0,.3);color:rgba(255,100,50,.8)}
   .card-btn.decline:hover{border-color:var(--warn);background:rgba(255,60,0,.08)}
   .card-btn.pending{border-color:rgba(255,184,80,.2);color:rgba(255,184,80,.4);cursor:default}
-  .card-btn.chat{border-color:rgba(255,184,80,.35);color:#ffb850;font-size:13px;padding:5px 9px}
-  .card-btn.chat:hover{border-color:#ffb850;background:rgba(255,160,60,.1);box-shadow:0 0 10px rgba(255,160,60,.2)}
   .card-btn.remove{border-color:rgba(255,60,0,.25);color:rgba(255,80,50,.6)}
   .card-btn.remove:hover{border-color:var(--warn);color:var(--warn);background:rgba(255,60,0,.07)}
   .friends-signout-btn{margin-top:14px;width:100%;background:transparent;border:1px solid rgba(255,60,0,.25);color:rgba(255,80,50,.5);font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:10px;cursor:pointer;transition:all .2s}
   .friends-signout-btn:hover{border-color:var(--warn);color:var(--warn);background:rgba(255,60,0,.06)}
-
-  /* CHAT PANEL */
-  .chat-overlay{position:fixed;inset:0;z-index:250;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
-  .chat-overlay.open{opacity:1;pointer-events:all}
-  .chat-overlay.open .chat-box{transform:translateY(0);opacity:1}
-  .chat-box{width:min(520px,92vw);height:min(540px,80vh);background:rgba(4,0,18,.92);backdrop-filter:blur(24px);border:1px solid rgba(255,160,60,.3);display:flex;flex-direction:column;transform:translateY(16px);opacity:0;transition:transform .35s ease,opacity .35s ease;position:relative}
-  .chat-header{display:flex;align-items:center;gap:10px;padding:14px 16px 12px;border-bottom:1px solid rgba(255,160,60,.15);flex-shrink:0}
-  .chat-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid rgba(255,255,255,.12);flex-shrink:0}
-  .chat-with{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;color:#ffb850;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .chat-online-pill{font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:20px;flex-shrink:0}
-  .chat-online-pill.on{background:rgba(0,255,204,.12);color:#00ffcc;border:1px solid rgba(0,255,204,.3)}
-  .chat-online-pill.off{background:rgba(58,32,96,.3);color:#3a2060;border:1px solid rgba(58,32,96,.4)}
-  .chat-back{background:none;border:none;color:rgba(255,184,80,.5);font-size:18px;cursor:pointer;padding:0 6px 0 0;line-height:1;transition:color .2s;flex-shrink:0}
-  .chat-back:hover{color:#ffb850}
-  .chat-messages{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
-  .chat-messages::-webkit-scrollbar{width:4px}
-  .chat-messages::-webkit-scrollbar-track{background:transparent}
-  .chat-messages::-webkit-scrollbar-thumb{background:rgba(255,160,60,.2);border-radius:2px}
-  .chat-msg{display:flex;flex-direction:column;gap:3px;max-width:78%}
-  .chat-msg.mine{align-self:flex-end;align-items:flex-end}
-  .chat-msg.theirs{align-self:flex-start;align-items:flex-start}
-  .chat-bubble{padding:9px 13px;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:.5px;line-height:1.5;word-break:break-word}
-  .chat-msg.mine .chat-bubble{background:rgba(255,160,60,.15);border:1px solid rgba(255,160,60,.3);color:#fff;border-radius:12px 12px 2px 12px}
-  .chat-msg.theirs .chat-bubble{background:rgba(0,255,204,.07);border:1px solid rgba(0,255,204,.18);color:#e0e0f0;border-radius:12px 12px 12px 2px}
-  .chat-time{font-size:9px;letter-spacing:1px;color:rgba(255,255,255,.2);padding:0 4px}
-  .chat-date-divider{text-align:center;font-size:9px;letter-spacing:2px;color:rgba(255,160,60,.3);text-transform:uppercase;padding:4px 0;position:relative}
-  .chat-date-divider::before,.chat-date-divider::after{content:'';position:absolute;top:50%;width:35%;height:1px;background:rgba(255,160,60,.1)}
-  .chat-date-divider::before{left:0} .chat-date-divider::after{right:0}
-  .chat-empty{color:rgba(255,184,80,.25);font-size:11px;letter-spacing:2px;text-transform:uppercase;text-align:center;margin:auto;padding:24px 0}
-  .chat-loading{color:rgba(255,184,80,.3);font-size:10px;letter-spacing:2px;text-transform:uppercase;text-align:center;padding:12px 0}
-  .chat-input-row{display:flex;gap:0;border-top:1px solid rgba(255,160,60,.15);flex-shrink:0}
-  .chat-input{flex:1;background:transparent;border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:1px;padding:14px 16px;outline:none;caret-color:#ffb850}
-  .chat-input::placeholder{color:rgba(255,184,80,.25)}
-  .chat-send{background:transparent;border:none;border-left:1px solid rgba(255,160,60,.15);color:rgba(255,184,80,.5);font-size:18px;padding:0 18px;cursor:pointer;transition:color .2s,background .2s;flex-shrink:0}
-  .chat-send:hover{color:#ffb850;background:rgba(255,160,60,.06)}
-  .chat-send:active{transform:scale(.92)}
-  .unread-badge{display:inline-block;background:var(--warn);color:#fff;font-size:8px;border-radius:8px;padding:1px 5px;margin-left:5px;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -221,25 +182,7 @@
   </div>
 </div>
 
-<!-- CHAT OVERLAY -->
-<div class="chat-overlay" id="chatOverlay">
-  <div class="chat-box">
-    <div class="chat-header">
-      <button class="chat-back" onclick="closeChat()">←</button>
-      <div class="chat-avatar" id="chatAvatar">👾</div>
-      <div class="chat-with" id="chatWith">—</div>
-      <div class="chat-online-pill off" id="chatOnlinePill">OFFLINE</div>
-    </div>
-    <div class="chat-messages" id="chatMessages">
-      <div class="chat-loading">Loading transmissions...</div>
-    </div>
-    <div class="chat-input-row">
-      <input class="chat-input" id="chatInput" type="text" placeholder="Send a transmission..." maxlength="400"
-        onkeydown="if(event.key==='Enter')sendMessage()" autocomplete="off" />
-      <button class="chat-send" onclick="sendMessage()">➤</button>
-    </div>
-  </div>
-</div>
+<canvas id="shipCanvas"></canvas>
 <canvas id="astronautCanvas"></canvas>
 
 <!-- X CLOSE BUTTON -->
@@ -1320,13 +1263,10 @@ function buildUserCard(user, rel, context) {
     dec.onclick = async () => { await declineRequest(rel.fsId, card); };
     actions.appendChild(acc); actions.appendChild(dec);
   } else if (rel.status === 'friend') {
-    const chatBtn = document.createElement('button');
-    chatBtn.className = 'card-btn chat'; chatBtn.textContent = '💬';
-    chatBtn.onclick = () => openChat(user);
-    const removeBtn = document.createElement('button');
-    removeBtn.className = 'card-btn remove'; removeBtn.textContent = '✕';
-    removeBtn.onclick = async () => { await removeFriend(rel.fsId, context === 'friends' ? card : null, actions); };
-    actions.appendChild(chatBtn); actions.appendChild(removeBtn);
+    const btn = document.createElement('button');
+    btn.className = 'card-btn remove'; btn.textContent = '✕ REMOVE';
+    btn.onclick = async () => { await removeFriend(rel.fsId, context === 'friends' ? card : null, actions); };
+    actions.appendChild(btn);
   }
 
   return card;
@@ -1366,196 +1306,6 @@ async function removeFriend(fsId, cardEl, actionsEl) {
   } catch(e) { console.error(e); }
 }
 
-// ═══════════════════════════════════════════════════════
-// CHAT SYSTEM
-// ═══════════════════════════════════════════════════════
-let chatPeer = null;       // the user object we're chatting with
-let chatPollInterval = null;
-let lastMsgTimestamp = null;
-let chatOpen = false;
-
-function formatTime(iso) {
-  const d = new Date(iso);
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-function formatDateLabel(iso) {
-  const d = new Date(iso);
-  const today = new Date();
-  const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
-  if (d.toDateString() === today.toDateString()) return 'TODAY';
-  if (d.toDateString() === yesterday.toDateString()) return 'YESTERDAY';
-  return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
-}
-
-async function openChat(peer) {
-  chatPeer = peer;
-  chatOpen = true;
-
-  // Update header
-  const avatarColor = peer.avatar_color || '#ffb850';
-  const initials = peer.username.slice(0,2).toUpperCase();
-  document.getElementById('chatAvatar').innerHTML =
-    `<span style="color:${avatarColor};font-family:'Orbitron',sans-serif;font-size:11px;font-weight:900">${initials}</span>`;
-  document.getElementById('chatAvatar').style.background = `${avatarColor}22`;
-  document.getElementById('chatAvatar').style.borderColor = `${avatarColor}55`;
-  document.getElementById('chatWith').textContent = peer.username.toUpperCase();
-
-  const secAgo = (Date.now() - new Date(peer.last_seen)) / 1000;
-  const isOnline = peer.is_online && secAgo < 60;
-  const pill = document.getElementById('chatOnlinePill');
-  pill.textContent = isOnline ? 'ONLINE' : 'OFFLINE';
-  pill.className = `chat-online-pill ${isOnline ? 'on' : 'off'}`;
-
-  // Show overlay
-  document.getElementById('chatOverlay').classList.add('open');
-  lastMsgTimestamp = null;
-
-  // Load history
-  await loadChatMessages();
-
-  // Mark messages as read
-  await sbPatch('messages',
-    `?receiver_id=eq.${currentUser.id}&sender_id=eq.${peer.id}&read=eq.false`,
-    { read: true }
-  ).catch(()=>{});
-
-  // Poll for new messages every 3s
-  if (chatPollInterval) clearInterval(chatPollInterval);
-  chatPollInterval = setInterval(async () => {
-    if (!chatOpen) return;
-    await pollNewMessages();
-  }, 3000);
-
-  setTimeout(() => {
-    const input = document.getElementById('chatInput');
-    if (input) input.focus();
-  }, 200);
-}
-
-function closeChat() {
-  chatOpen = false;
-  chatPeer = null;
-  if (chatPollInterval) { clearInterval(chatPollInterval); chatPollInterval = null; }
-  document.getElementById('chatOverlay').classList.remove('open');
-  document.getElementById('chatMessages').innerHTML = '<div class="chat-loading">Loading transmissions...</div>';
-  document.getElementById('chatInput').value = '';
-  lastMsgTimestamp = null;
-  // Refresh unread counts in friends list
-  loadFriends();
-}
-
-async function loadChatMessages() {
-  const el = document.getElementById('chatMessages');
-  el.innerHTML = '<div class="chat-loading">Loading transmissions...</div>';
-  try {
-    const msgs = await sbGet('messages',
-      `?or=(and(sender_id.eq.${currentUser.id},receiver_id.eq.${chatPeer.id}),and(sender_id.eq.${chatPeer.id},receiver_id.eq.${currentUser.id}))&order=created_at.asc&limit=80`
-    );
-    el.innerHTML = '';
-    if (msgs.length === 0) {
-      el.innerHTML = '<div class="chat-empty">No transmissions yet.<br>Say something.</div>';
-      return;
-    }
-    let lastDate = null;
-    msgs.forEach(msg => {
-      const dateLabel = formatDateLabel(msg.created_at);
-      if (dateLabel !== lastDate) {
-        const div = document.createElement('div');
-        div.className = 'chat-date-divider';
-        div.textContent = dateLabel;
-        el.appendChild(div);
-        lastDate = dateLabel;
-      }
-      el.appendChild(buildMsgBubble(msg));
-    });
-    lastMsgTimestamp = msgs[msgs.length - 1].created_at;
-    scrollChatToBottom();
-  } catch(e) {
-    el.innerHTML = '<div class="chat-empty">Signal lost.</div>';
-  }
-}
-
-async function pollNewMessages() {
-  if (!chatPeer || !currentUser || !lastMsgTimestamp) return;
-  try {
-    const newMsgs = await sbGet('messages',
-      `?or=(and(sender_id.eq.${currentUser.id},receiver_id.eq.${chatPeer.id}),and(sender_id.eq.${chatPeer.id},receiver_id.eq.${currentUser.id}))&created_at=gt.${encodeURIComponent(lastMsgTimestamp)}&order=created_at.asc`
-    );
-    if (newMsgs.length === 0) return;
-
-    const el = document.getElementById('chatMessages');
-    // Remove empty state if present
-    const empty = el.querySelector('.chat-empty');
-    if (empty) empty.remove();
-
-    newMsgs.forEach(msg => {
-      el.appendChild(buildMsgBubble(msg));
-    });
-    lastMsgTimestamp = newMsgs[newMsgs.length - 1].created_at;
-    scrollChatToBottom();
-
-    // Mark incoming as read
-    const incoming = newMsgs.filter(m => m.sender_id === chatPeer.id);
-    if (incoming.length > 0) {
-      await sbPatch('messages',
-        `?receiver_id=eq.${currentUser.id}&sender_id=eq.${chatPeer.id}&read=eq.false`,
-        { read: true }
-      ).catch(()=>{});
-    }
-  } catch(e) {}
-}
-
-function buildMsgBubble(msg) {
-  const isMine = msg.sender_id === currentUser.id;
-  const wrap = document.createElement('div');
-  wrap.className = `chat-msg ${isMine ? 'mine' : 'theirs'}`;
-  wrap.innerHTML = `
-    <div class="chat-bubble">${escapeHtml(msg.content)}</div>
-    <div class="chat-time">${formatTime(msg.created_at)}</div>
-  `;
-  return wrap;
-}
-
-function escapeHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function scrollChatToBottom() {
-  const el = document.getElementById('chatMessages');
-  requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
-}
-
-async function sendMessage() {
-  const input = document.getElementById('chatInput');
-  const content = input.value.trim();
-  if (!content || !chatPeer || !currentUser) return;
-  input.value = '';
-
-  // Optimistic render
-  const optimistic = { sender_id: currentUser.id, receiver_id: chatPeer.id, content, created_at: new Date().toISOString() };
-  const el = document.getElementById('chatMessages');
-  const empty = el.querySelector('.chat-empty');
-  if (empty) empty.remove();
-  el.appendChild(buildMsgBubble(optimistic));
-  scrollChatToBottom();
-
-  try {
-    const saved = await sbPost('messages', {
-      sender_id: currentUser.id,
-      receiver_id: chatPeer.id,
-      content,
-      read: false
-    });
-    if (saved && saved[0]) lastMsgTimestamp = saved[0].created_at;
-  } catch(e) {
-    const errDiv = document.createElement('div');
-    errDiv.className = 'chat-empty';
-    errDiv.textContent = 'Failed to send. Signal lost.';
-    el.appendChild(errDiv);
-  }
-}
-
 // ── OPEN / CLOSE HOOKS ────────────────────────────────
 async function initFriendsScreen() {
   const autoLoggedIn = await tryAutoLogin();
@@ -1567,9 +1317,9 @@ async function initFriendsScreen() {
 }
 
 function teardownFriends() {
-  if (chatOpen) closeChat();
   if (onlineInterval) { clearInterval(onlineInterval); onlineInterval = null; }
   if (realtimePollInterval) { clearInterval(realtimePollInterval); realtimePollInterval = null; }
+  // Mark offline
   if (currentUser) sbPatch('users', `?id=eq.${currentUser.id}`, { is_online: false }).catch(()=>{});
 }
 
