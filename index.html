@@ -99,8 +99,50 @@
   .search-input:focus{border-color:#ffb850;box-shadow:0 0 24px rgba(255,160,60,.18);background:rgba(3,0,10,.88)}
   .search-icon{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.4;pointer-events:none;transition:opacity .25s}
   .search-input:focus~.search-icon{opacity:.8}
-  .search-results{width:100%;display:flex;flex-direction:column;gap:8px;min-height:48px}
+  .search-results{width:100%;display:flex;flex-direction:column;gap:8px;min-height:48px;max-height:260px;overflow-y:auto}
   .search-hint{font-size:11px;letter-spacing:2px;color:rgba(255,184,80,.3);text-transform:uppercase;text-align:center;padding:12px 0}
+
+  /* LOGIN */
+  .friends-login-form{display:flex;flex-direction:column;gap:12px;width:100%}
+  .friends-action-btn{background:transparent;border:1px solid rgba(255,160,60,.4);color:#ffb850;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;padding:14px 20px;cursor:pointer;transition:all .2s;width:100%}
+  .friends-action-btn:hover{border-color:#ffb850;background:rgba(255,160,60,.08);box-shadow:0 0 20px rgba(255,160,60,.2);color:#fff}
+  .friends-action-btn:active{transform:scale(.97)}
+
+  /* HEADER */
+  .friends-header{display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:6px}
+  .friends-whoami{font-size:10px;letter-spacing:2px;color:rgba(255,184,80,.6);text-transform:uppercase}
+
+  /* TABS */
+  .friends-tabs{display:flex;gap:0;width:100%;margin-bottom:14px;border-bottom:1px solid rgba(255,160,60,.2)}
+  .ftab{flex:1;background:transparent;border:none;border-bottom:2px solid transparent;color:rgba(255,184,80,.4);font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:10px 4px;cursor:pointer;transition:all .2s;position:relative}
+  .ftab:hover{color:rgba(255,184,80,.75)}
+  .ftab.active{color:#ffb850;border-bottom-color:#ffb850;text-shadow:0 0 8px rgba(255,160,60,.4)}
+  .ftab-badge{display:inline-block;background:var(--warn);color:#fff;font-size:8px;border-radius:8px;padding:1px 5px;margin-left:4px;vertical-align:middle}
+  .ftab-panel{width:100%}
+
+  /* USER CARD */
+  .user-card{display:flex;align-items:center;gap:12px;padding:12px 16px;border:1px solid rgba(255,160,60,.15);background:rgba(3,0,10,.6);backdrop-filter:blur(8px);transition:border-color .2s}
+  .user-card:hover{border-color:rgba(255,160,60,.35)}
+  .user-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;border:2px solid rgba(255,255,255,.15)}
+  .user-info{flex:1;min-width:0}
+  .user-name{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .user-status{font-size:9px;letter-spacing:1px;margin-top:3px;text-transform:uppercase}
+  .online-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle}
+  .online-dot.on{background:#00ffcc;box-shadow:0 0 5px #00ffcc}
+  .online-dot.off{background:#3a2060}
+  .card-actions{display:flex;gap:6px;flex-shrink:0}
+  .card-btn{background:transparent;border:1px solid;font-family:'Orbitron',sans-serif;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:6px 10px;cursor:pointer;transition:all .2s}
+  .card-btn.add{border-color:rgba(0,255,204,.35);color:var(--signal)}
+  .card-btn.add:hover{border-color:var(--signal);background:rgba(0,255,204,.08);box-shadow:0 0 12px rgba(0,255,204,.2)}
+  .card-btn.accept{border-color:rgba(0,255,100,.35);color:#00ff88}
+  .card-btn.accept:hover{border-color:#00ff88;background:rgba(0,255,100,.08)}
+  .card-btn.decline{border-color:rgba(255,60,0,.3);color:rgba(255,100,50,.8)}
+  .card-btn.decline:hover{border-color:var(--warn);background:rgba(255,60,0,.08)}
+  .card-btn.pending{border-color:rgba(255,184,80,.2);color:rgba(255,184,80,.4);cursor:default}
+  .card-btn.remove{border-color:rgba(255,60,0,.25);color:rgba(255,80,50,.6)}
+  .card-btn.remove:hover{border-color:var(--warn);color:var(--warn);background:rgba(255,60,0,.07)}
+  .friends-signout-btn{margin-top:14px;width:100%;background:transparent;border:1px solid rgba(255,60,0,.25);color:rgba(255,80,50,.5);font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:10px;cursor:pointer;transition:all .2s}
+  .friends-signout-btn:hover{border-color:var(--warn);color:var(--warn);background:rgba(255,60,0,.06)}
 </style>
 </head>
 <body>
@@ -161,15 +203,61 @@
 <!-- FRIENDS SCREEN -->
 <div class="friends-screen" id="friendsScreen">
   <div class="friends-box">
-    <div class="friends-label">👾 Find a Crew Member</div>
-    <div class="friends-divider"></div>
-    <div class="search-wrap">
-      <input class="search-input" id="friendSearch" type="text" placeholder="Search by username..." autocomplete="off" oninput="onSearch(this.value)" />
-      <span class="search-icon">🔍</span>
+
+    <!-- LOGIN PANEL (shown when not logged in) -->
+    <div id="friendsLogin">
+      <div class="friends-label">👾 Crew Registry</div>
+      <div class="friends-divider"></div>
+      <div class="friends-login-form">
+        <input class="search-input" id="loginUsername" type="text" placeholder="Choose a username..." autocomplete="off" maxlength="24" />
+        <button class="friends-action-btn" onclick="registerOrLogin()">ENTER THE VOID</button>
+        <div class="search-hint" id="loginStatus">Pick a callsign to join the crew registry.</div>
+      </div>
     </div>
-    <div class="search-results" id="searchResults">
-      <div class="search-hint">Type a name to search the void...</div>
+
+    <!-- MAIN PANEL (shown when logged in) -->
+    <div id="friendsMain" style="display:none;width:100%">
+      <div class="friends-header">
+        <div class="friends-label" style="font-size:9px">👾 CREW REGISTRY</div>
+        <div class="friends-whoami" id="friendsWhoami"></div>
+      </div>
+      <div class="friends-divider"></div>
+
+      <!-- TABS -->
+      <div class="friends-tabs">
+        <button class="ftab active" onclick="switchTab('search')" id="tab-search">SEARCH</button>
+        <button class="ftab" onclick="switchTab('requests')" id="tab-requests">REQUESTS <span class="ftab-badge" id="reqBadge" style="display:none"></span></button>
+        <button class="ftab" onclick="switchTab('friends')" id="tab-friends">FRIENDS</button>
+      </div>
+
+      <!-- SEARCH TAB -->
+      <div class="ftab-panel" id="panel-search">
+        <div class="search-wrap">
+          <input class="search-input" id="friendSearch" type="text" placeholder="Search by username..." autocomplete="off" oninput="onSearch(this.value)" />
+          <span class="search-icon">🔍</span>
+        </div>
+        <div class="search-results" id="searchResults">
+          <div class="search-hint">Type a callsign to search the void...</div>
+        </div>
+      </div>
+
+      <!-- REQUESTS TAB -->
+      <div class="ftab-panel" id="panel-requests" style="display:none">
+        <div class="search-results" id="requestResults">
+          <div class="search-hint">No pending requests.</div>
+        </div>
+      </div>
+
+      <!-- FRIENDS TAB -->
+      <div class="ftab-panel" id="panel-friends" style="display:none">
+        <div class="search-results" id="friendsList">
+          <div class="search-hint">No crew members added yet.</div>
+        </div>
+      </div>
+
+      <button class="friends-signout-btn" onclick="signOut()">⬡ SIGN OUT</button>
     </div>
+
   </div>
 </div>
 
@@ -866,15 +954,21 @@ function openFriends() {
   setTimeout(()=>{
     document.getElementById('friendsScreen').classList.add('open');
     showCloseBtn();
-    setTimeout(()=>document.getElementById('friendSearch').focus(), 100);
+    initFriendsScreen().then(()=>{
+      const searchEl = document.getElementById('friendSearch');
+      if (searchEl) setTimeout(()=>searchEl.focus(), 100);
+    });
   }, 350);
 }
 
 function closeFriends() {
   activeScreen = null;
+  teardownFriends();
   document.getElementById('friendsScreen').classList.remove('open');
-  document.getElementById('friendSearch').value = '';
-  document.getElementById('searchResults').innerHTML = '<div class="search-hint">Type a name to search the void...</div>';
+  const searchEl = document.getElementById('friendSearch');
+  if (searchEl) searchEl.value = '';
+  const resultsEl = document.getElementById('searchResults');
+  if (resultsEl) resultsEl.innerHTML = '<div class="search-hint">Type a callsign to search the void...</div>';
   hideCloseBtn();
   astronautCanvas.classList.remove('visible');
   canvas.style.opacity='1';
@@ -884,16 +978,352 @@ function closeFriends() {
   setTimeout(()=>showMenu(), 400);
 }
 
-function onSearch(val) {
-  const results = document.getElementById('searchResults');
-  const v = val.trim();
-  if (!v) {
-    results.innerHTML = '<div class="search-hint">Type a name to search the void...</div>';
-    return;
-  }
-  // Placeholder — no real backend yet
-  results.innerHTML = '<div class="search-hint">No crew members found in this sector...</div>';
+// ═══════════════════════════════════════════════════════
+// SUPABASE FRIENDS SYSTEM
+// ═══════════════════════════════════════════════════════
+const SUPA_URL = 'https://henqpbslgpxhtmzlrgvq.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlbnFwYnNsZ3B4aHRtemxyZ3ZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMTY1ODgsImV4cCI6MjA4OTc5MjU4OH0.ZWWZgsCH8AJFQxpx5YPlMAnaBgDrfwVHNTV7_fD7brg';
+
+let currentUser = null;
+let searchDebounce = null;
+let onlineInterval = null;
+let realtimePollInterval = null;
+
+// ── SUPABASE REST HELPERS ─────────────────────────────
+async function sbGet(table, params = '') {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}${params}`, {
+    headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}`, 'Content-Type': 'application/json' }
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
 }
+
+async function sbPost(table, body) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}`, 'Content-Type': 'application/json', Prefer: 'return=representation' },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+async function sbPatch(table, params, body) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}${params}`, {
+    method: 'PATCH',
+    headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}`, 'Content-Type': 'application/json', Prefer: 'return=representation' },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+async function sbDelete(table, params) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}${params}`, {
+    method: 'DELETE',
+    headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}`, 'Content-Type': 'application/json' }
+  });
+  if (!r.ok) throw new Error(await r.text());
+}
+
+// ── REGISTER / LOGIN ──────────────────────────────────
+async function registerOrLogin() {
+  const raw = document.getElementById('loginUsername').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  const statusEl = document.getElementById('loginStatus');
+  if (!raw || raw.length < 2) { statusEl.textContent = 'Callsign must be at least 2 characters.'; return; }
+  statusEl.textContent = 'Scanning crew manifest...';
+  const COLORS = ['#00ffcc','#ff6030','#a060ff','#ffb850','#40ccff','#ff4090','#60ff90','#ff9020'];
+  try {
+    let users = await sbGet('users', `?username=eq.${encodeURIComponent(raw)}&select=*`);
+    if (users.length === 0) {
+      const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+      const created = await sbPost('users', {
+        username: raw, display_name: raw,
+        avatar_color: color,
+        is_online: true, last_seen: new Date().toISOString()
+      });
+      currentUser = created[0];
+      statusEl.textContent = 'New crew member registered!';
+    } else {
+      currentUser = users[0];
+      await sbPatch('users', `?id=eq.${currentUser.id}`, { is_online: true, last_seen: new Date().toISOString() });
+      statusEl.textContent = 'Welcome back, ' + currentUser.username;
+    }
+    localStorage.setItem('vw_user_id', currentUser.id);
+    localStorage.setItem('vw_username', currentUser.username);
+    showFriendsMain();
+  } catch(e) {
+    statusEl.textContent = 'Connection failed. Check your signal.';
+    console.error(e);
+  }
+}
+
+function signOut() {
+  if (currentUser) {
+    sbPatch('users', `?id=eq.${currentUser.id}`, { is_online: false }).catch(()=>{});
+  }
+  clearInterval(onlineInterval);
+  clearInterval(realtimePollInterval);
+  currentUser = null;
+  localStorage.removeItem('vw_user_id');
+  localStorage.removeItem('vw_username');
+  document.getElementById('friendsMain').style.display = 'none';
+  document.getElementById('friendsLogin').style.display = '';
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginStatus').textContent = 'Pick a callsign to join the crew registry.';
+}
+
+async function tryAutoLogin() {
+  const savedId = localStorage.getItem('vw_user_id');
+  if (!savedId) return false;
+  try {
+    const users = await sbGet('users', `?id=eq.${savedId}&select=*`);
+    if (users.length === 0) return false;
+    currentUser = users[0];
+    await sbPatch('users', `?id=eq.${currentUser.id}`, { is_online: true, last_seen: new Date().toISOString() });
+    return true;
+  } catch { return false; }
+}
+
+function showFriendsMain() {
+  document.getElementById('friendsLogin').style.display = 'none';
+  document.getElementById('friendsMain').style.display = 'block';
+  document.getElementById('friendsWhoami').textContent = '⬡ ' + currentUser.username;
+
+  // Heartbeat — keep online status alive
+  if (onlineInterval) clearInterval(onlineInterval);
+  onlineInterval = setInterval(async () => {
+    if (!currentUser) return;
+    await sbPatch('users', `?id=eq.${currentUser.id}`, { is_online: true, last_seen: new Date().toISOString() });
+  }, 20000);
+
+  // Poll for new requests every 15s
+  if (realtimePollInterval) clearInterval(realtimePollInterval);
+  realtimePollInterval = setInterval(() => {
+    if (activeScreen === 'friends') loadRequests();
+  }, 15000);
+
+  switchTab('search');
+  loadRequests();
+  loadFriends();
+}
+
+// ── TABS ──────────────────────────────────────────────
+function switchTab(name) {
+  ['search','requests','friends'].forEach(t => {
+    document.getElementById('panel-' + t).style.display = t === name ? 'block' : 'none';
+    document.getElementById('tab-' + t).classList.toggle('active', t === name);
+  });
+  if (name === 'requests') loadRequests();
+  if (name === 'friends') loadFriends();
+}
+
+// ── SEARCH ────────────────────────────────────────────
+async function onSearch(val) {
+  const results = document.getElementById('searchResults');
+  const v = val.trim().toLowerCase();
+  if (!v) { results.innerHTML = '<div class="search-hint">Type a callsign to search the void...</div>'; return; }
+
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(async () => {
+    results.innerHTML = '<div class="search-hint">Scanning...</div>';
+    try {
+      const users = await sbGet('users', `?username=ilike.*${encodeURIComponent(v)}*&select=*&limit=8`);
+      if (users.length === 0) { results.innerHTML = '<div class="search-hint">No crew members found.</div>'; return; }
+
+      // Get current friendships to know status
+      const fs = currentUser
+        ? await sbGet('friendships', `?or=(user_id.eq.${currentUser.id},friend_id.eq.${currentUser.id})&select=*`)
+        : [];
+
+      results.innerHTML = '';
+      users.forEach(u => {
+        if (currentUser && u.id === currentUser.id) return; // skip self
+        const rel = getRelationship(u.id, fs);
+        results.appendChild(buildUserCard(u, rel, 'search'));
+      });
+    } catch(e) {
+      results.innerHTML = '<div class="search-hint">Signal lost. Try again.</div>';
+    }
+  }, 350);
+}
+
+// ── FRIEND REQUESTS ───────────────────────────────────
+async function loadRequests() {
+  if (!currentUser) return;
+  const el = document.getElementById('requestResults');
+  try {
+    // Incoming pending requests
+    const incoming = await sbGet('friendships', `?friend_id=eq.${currentUser.id}&status=eq.pending&select=*`);
+
+    // Update badge
+    const badge = document.getElementById('reqBadge');
+    if (incoming.length > 0) { badge.style.display='inline-block'; badge.textContent = incoming.length; }
+    else { badge.style.display='none'; }
+
+    if (incoming.length === 0) { el.innerHTML = '<div class="search-hint">No pending requests.</div>'; return; }
+
+    // Fetch sender user details
+    const senderIds = incoming.map(f => f.user_id);
+    const senders = await sbGet('users', `?id=in.(${senderIds.join(',')})&select=*`);
+    const senderMap = Object.fromEntries(senders.map(u => [u.id, u]));
+
+    el.innerHTML = '';
+    incoming.forEach(f => {
+      const u = senderMap[f.user_id];
+      if (!u) return;
+      el.appendChild(buildUserCard(u, { status:'incoming', fsId: f.id }, 'requests'));
+    });
+  } catch(e) { el.innerHTML = '<div class="search-hint">Signal lost.</div>'; }
+}
+
+async function loadFriends() {
+  if (!currentUser) return;
+  const el = document.getElementById('friendsList');
+  try {
+    const fs = await sbGet('friendships', `?or=(user_id.eq.${currentUser.id},friend_id.eq.${currentUser.id})&status=eq.accepted&select=*`);
+    if (fs.length === 0) { el.innerHTML = '<div class="search-hint">No crew members yet. Search to add some!</div>'; return; }
+
+    const otherIds = fs.map(f => f.user_id === currentUser.id ? f.friend_id : f.user_id);
+    const friends = await sbGet('users', `?id=in.(${otherIds.join(',')})&select=*`);
+    const fsMap = Object.fromEntries(fs.map(f => {
+      const oid = f.user_id === currentUser.id ? f.friend_id : f.user_id;
+      return [oid, f.id];
+    }));
+
+    // Sort: online first
+    friends.sort((a,b) => (b.is_online ? 1 : 0) - (a.is_online ? 1 : 0));
+
+    el.innerHTML = '';
+    friends.forEach(u => {
+      el.appendChild(buildUserCard(u, { status:'friend', fsId: fsMap[u.id] }, 'friends'));
+    });
+  } catch(e) { el.innerHTML = '<div class="search-hint">Signal lost.</div>'; }
+}
+
+// ── RELATIONSHIP HELPER ───────────────────────────────
+function getRelationship(userId, friendships) {
+  if (!currentUser) return { status: 'none' };
+  const f = friendships.find(f =>
+    (f.user_id === currentUser.id && f.friend_id === userId) ||
+    (f.user_id === userId && f.friend_id === currentUser.id)
+  );
+  if (!f) return { status: 'none' };
+  if (f.status === 'accepted') return { status: 'friend', fsId: f.id };
+  if (f.status === 'pending' && f.user_id === currentUser.id) return { status: 'sent', fsId: f.id };
+  if (f.status === 'pending' && f.friend_id === currentUser.id) return { status: 'incoming', fsId: f.id };
+  return { status: 'none' };
+}
+
+// ── BUILD USER CARD ───────────────────────────────────
+function buildUserCard(user, rel, context) {
+  const card = document.createElement('div');
+  card.className = 'user-card';
+
+  const onlineSince = new Date(user.last_seen);
+  const secAgo = (Date.now() - onlineSince) / 1000;
+  const isOnline = user.is_online && secAgo < 60;
+
+  const avatarColor = user.avatar_color || '#00ffcc';
+  const initials = user.username.slice(0,2).toUpperCase();
+
+  card.innerHTML = `
+    <div class="user-avatar" style="background:${avatarColor}22;border-color:${avatarColor}55">
+      <span style="color:${avatarColor};font-family:'Orbitron',sans-serif;font-size:11px;font-weight:900">${initials}</span>
+    </div>
+    <div class="user-info">
+      <div class="user-name">${user.username}</div>
+      <div class="user-status">
+        <span class="online-dot ${isOnline ? 'on' : 'off'}"></span>
+        <span style="color:${isOnline ? '#00ffcc' : 'rgba(200,184,255,0.3)'}">${isOnline ? 'ONLINE' : 'OFFLINE'}</span>
+      </div>
+    </div>
+    <div class="card-actions" id="actions-${user.id}"></div>
+  `;
+
+  const actions = card.querySelector(`#actions-${user.id}`);
+
+  if (!currentUser) {
+    // not logged in — no actions
+  } else if (rel.status === 'none') {
+    const btn = document.createElement('button');
+    btn.className = 'card-btn add'; btn.textContent = '+ ADD';
+    btn.onclick = async () => { btn.disabled=true; btn.textContent='...'; await sendFriendRequest(user.id, actions, user); };
+    actions.appendChild(btn);
+  } else if (rel.status === 'sent') {
+    const btn = document.createElement('button');
+    btn.className = 'card-btn pending'; btn.textContent = 'PENDING'; btn.disabled=true;
+    actions.appendChild(btn);
+  } else if (rel.status === 'incoming') {
+    const acc = document.createElement('button');
+    acc.className = 'card-btn accept'; acc.textContent = '✓ ACCEPT';
+    acc.onclick = async () => { await acceptRequest(rel.fsId, actions); };
+    const dec = document.createElement('button');
+    dec.className = 'card-btn decline'; dec.textContent = '✕';
+    dec.onclick = async () => { await declineRequest(rel.fsId, card); };
+    actions.appendChild(acc); actions.appendChild(dec);
+  } else if (rel.status === 'friend') {
+    const btn = document.createElement('button');
+    btn.className = 'card-btn remove'; btn.textContent = '✕ REMOVE';
+    btn.onclick = async () => { await removeFriend(rel.fsId, context === 'friends' ? card : null, actions); };
+    actions.appendChild(btn);
+  }
+
+  return card;
+}
+
+// ── ACTIONS ───────────────────────────────────────────
+async function sendFriendRequest(toId, actionsEl, user) {
+  try {
+    await sbPost('friendships', { user_id: currentUser.id, friend_id: toId, status: 'pending' });
+    actionsEl.innerHTML = '<button class="card-btn pending" disabled>PENDING</button>';
+  } catch(e) {
+    actionsEl.innerHTML = '<button class="card-btn pending" disabled>ERROR</button>';
+  }
+}
+
+async function acceptRequest(fsId, actionsEl) {
+  try {
+    await sbPatch('friendships', `?id=eq.${fsId}`, { status: 'accepted' });
+    actionsEl.innerHTML = '<button class="card-btn pending" disabled>✓ CREW</button>';
+    loadRequests(); loadFriends();
+  } catch(e) { console.error(e); }
+}
+
+async function declineRequest(fsId, cardEl) {
+  try {
+    await sbDelete('friendships', `?id=eq.${fsId}`);
+    cardEl.remove(); loadRequests();
+  } catch(e) { console.error(e); }
+}
+
+async function removeFriend(fsId, cardEl, actionsEl) {
+  try {
+    await sbDelete('friendships', `?id=eq.${fsId}`);
+    if (cardEl) cardEl.remove();
+    else if (actionsEl) actionsEl.innerHTML = '<button class="card-btn add">+ ADD</button>';
+    loadFriends();
+  } catch(e) { console.error(e); }
+}
+
+// ── OPEN / CLOSE HOOKS ────────────────────────────────
+async function initFriendsScreen() {
+  const autoLoggedIn = await tryAutoLogin();
+  if (autoLoggedIn) showFriendsMain();
+  else {
+    document.getElementById('friendsLogin').style.display = 'block';
+    document.getElementById('friendsMain').style.display = 'none';
+  }
+}
+
+function teardownFriends() {
+  if (onlineInterval) { clearInterval(onlineInterval); onlineInterval = null; }
+  if (realtimePollInterval) { clearInterval(realtimePollInterval); realtimePollInterval = null; }
+  // Mark offline
+  if (currentUser) sbPatch('users', `?id=eq.${currentUser.id}`, { is_online: false }).catch(()=>{});
+}
+
+window.addEventListener('beforeunload', teardownFriends);
 
 // Ship loop runs alongside space loop
 function shipLoop(t) {
