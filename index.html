@@ -125,12 +125,40 @@
   .card-btn.remove:hover{border-color:var(--warn);color:var(--warn);background:rgba(255,60,0,.07)}
   .friends-signout-btn{margin-top:14px;width:100%;background:transparent;border:1px solid rgba(255,60,0,.25);color:rgba(255,80,50,.5);font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:10px;cursor:pointer;transition:all .2s}
   .friends-signout-btn:hover{border-color:var(--warn);color:var(--warn);background:rgba(255,60,0,.06)}
+
+  /* GAME */
+  #gameCanvas{position:fixed;inset:0;width:100%;height:100%;z-index:2;opacity:0;pointer-events:none;transition:opacity 1.2s ease}
+  #gameCanvas.visible{opacity:1}
+
+  /* FADE TO BLACK */
+  .fade-black{position:fixed;inset:0;z-index:400;background:#000;opacity:0;pointer-events:none;transition:opacity .7s ease}
+  .fade-black.on{opacity:1;pointer-events:all}
+
+  /* CUTSCENE */
+  .cutscene-overlay{position:fixed;inset:0;z-index:410;display:flex;align-items:flex-end;justify-content:flex-start;padding:0 0 72px 72px;opacity:0;pointer-events:none;transition:opacity .6s ease}
+  .cutscene-overlay.visible{opacity:1;pointer-events:all}
+  .cutscene-inner{max-width:560px;display:flex;flex-direction:column;gap:14px}
+  .cutscene-header{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:6px;color:var(--signal);text-transform:uppercase;text-shadow:0 0 12px rgba(0,255,204,.5);min-height:18px}
+  .cutscene-body{font-family:'Share Tech Mono',monospace;font-size:15px;line-height:1.7;color:rgba(220,215,255,0.92);letter-spacing:.5px;min-height:80px;text-shadow:0 0 20px rgba(0,0,0,1)}
+  .cutscene-body .cursor{display:inline-block;width:9px;height:16px;background:var(--signal);vertical-align:middle;margin-left:2px;animation:blink-cur .65s step-end infinite}
+  @keyframes blink-cur{0%,100%{opacity:1}50%{opacity:0}}
+  .cutscene-skip{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:4px;color:rgba(255,255,255,.2);text-transform:uppercase;cursor:pointer;transition:color .2s;width:fit-content}
+  .cutscene-skip:hover{color:rgba(255,255,255,.5)}
 </style>
 </head>
 <body>
 <canvas id="panorama"></canvas>
 <canvas id="shipCanvas"></canvas>
 <canvas id="astronautCanvas"></canvas>
+<canvas id="gameCanvas"></canvas>
+<div class="fade-black" id="fadeBlack"></div>
+<div class="cutscene-overlay" id="cutsceneOverlay">
+  <div class="cutscene-inner" id="cutsceneInner">
+    <div class="cutscene-header" id="cutsceneHeader"></div>
+    <div class="cutscene-body" id="cutsceneBody"></div>
+    <div class="cutscene-skip" id="cutsceneSkip" onclick="skipCutscene()">[ SKIP ]</div>
+  </div>
+</div>
 <div class="scanlines"></div>
 <div class="vignette"></div>
 
@@ -170,7 +198,7 @@
     <div class="solo-divider"></div>
     <div class="solo-buttons">
       <button class="solo-btn">CONTINUE</button>
-      <button class="solo-btn">NEW SAVE</button>
+      <button class="solo-btn" onclick="startNewGame()">NEW SAVE</button>
     </div>
   </div>
 </div>
@@ -546,7 +574,7 @@ function astronautLoop(t){
   requestAnimationFrame(astronautLoop);
 }
 
-window.addEventListener('resize',()=>{cancelAnimationFrame(raf);resize();requestAnimationFrame(loop);});
+window.addEventListener('resize',()=>{cancelAnimationFrame(raf);resize();resizeGameCanvas();requestAnimationFrame(loop);});
 resize();
 requestAnimationFrame(loop);
 requestAnimationFrame(shipLoop);
@@ -570,6 +598,640 @@ function closeSolo(){
   activeScreen=null;document.getElementById('soloScreen').classList.remove('open');hideCloseBtn();
   shipCanvas.classList.remove('visible');canvas.style.opacity='1';
   setTimeout(()=>{mode='space';showMenu();},500);
+}
+
+// ═══════════════════════════════════════════════
+// RAYCASTER ENGINE
+// ═══════════════════════════════════════════════
+const gameCanvas = document.getElementById('gameCanvas');
+const gCtx = gameCanvas.getContext('2d');
+let gameRunning = false;
+
+function resizeGameCanvas(){
+  gameCanvas.width = window.innerWidth;
+  gameCanvas.height = window.innerHeight;
+}
+
+// ── MAP ─────────────────────────────────────────────
+// 0=empty 1=white wall 2=door(NS) 3=door(EW) 4=window 5=mirror 6=crate
+const MAP_W = 14, MAP_H = 12;
+const MAP = [
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,0,0,0,0,0,1,0,0,0,0,0,0,1],
+  [1,0,6,0,0,0,2,0,0,0,0,6,0,1],
+  [1,0,0,0,0,0,1,0,0,0,0,0,0,1],
+  [1,0,0,0,5,0,1,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,3,0,0,4,0,0,0,1],
+  [1,0,0,0,0,0,1,0,0,0,0,0,0,1],
+  [1,0,6,0,0,0,1,0,0,0,0,6,0,1],
+  [1,0,0,0,0,0,2,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,1,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,1,0,0,0,0,0,0,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+];
+
+// Door state
+const doors = {}; // key="r,c" val={open:0..1, opening:bool}
+function doorKey(r,c){return r+','+c;}
+[[2,6],[5,6],[8,6]].forEach(([r,c])=>{ doors[doorKey(r,c)]={open:0,opening:false}; });
+
+// Player state
+const player = {
+  x: 1.5, y: 1.5,   // position in map units
+  angle: 0,          // radians
+  speed: 0,
+  strafeSpeed: 0,
+  bobPhase: 0,
+  breathPhase: 0,
+};
+
+const FOV = Math.PI / 2.8;
+const MOVE_SPEED = 0.048;
+const ROT_SPEED = 0.032;
+const PLAYER_RADIUS = 0.22;
+
+// Input
+const keys = {};
+let mouseDX = 0;
+let pointerLocked = false;
+
+// ── TEXTURES (procedural) ──────────────────────────
+// Pre-render wall textures onto offscreen canvases
+const TEX_SIZE = 128;
+
+function makeTexture(drawFn) {
+  const c = document.createElement('canvas');
+  c.width = c.height = TEX_SIZE;
+  const x = c.getContext('2d');
+  drawFn(x, TEX_SIZE);
+  return c;
+}
+
+const TEX_WALL = makeTexture((x, S) => {
+  // Clean white panel wall
+  x.fillStyle = '#f0f2f5';
+  x.fillRect(0, 0, S, S);
+  // Panel lines
+  x.strokeStyle = 'rgba(180,200,230,0.45)';
+  x.lineWidth = 2;
+  x.beginPath(); x.moveTo(0, S*0.5); x.lineTo(S, S*0.5); x.stroke();
+  x.beginPath(); x.moveTo(S*0.5, 0); x.lineTo(S*0.5, S); x.stroke();
+  // Subtle bevel corners
+  x.strokeStyle = 'rgba(140,170,210,0.3)';
+  x.lineWidth = 1;
+  x.strokeRect(4, 4, S-8, S-8);
+  // Blue accent strip at mid-height
+  x.fillStyle = 'rgba(100,170,255,0.18)';
+  x.fillRect(0, S*0.47, S, S*0.06);
+  // Rivet dots
+  [[6,6],[S-6,6],[6,S-6],[S-6,S-6]].forEach(([px,py]) => {
+    x.beginPath(); x.arc(px, py, 3, 0, Math.PI*2);
+    x.fillStyle = 'rgba(150,180,220,0.5)'; x.fill();
+  });
+});
+
+const TEX_DOOR = makeTexture((x, S) => {
+  x.fillStyle = '#d8e4f0';
+  x.fillRect(0, 0, S, S);
+  // Door frame
+  x.strokeStyle = 'rgba(0,180,255,0.6)'; x.lineWidth = 3;
+  x.strokeRect(6, 6, S-12, S-12);
+  // Center dividing line (two-panel door)
+  x.strokeStyle = 'rgba(0,180,255,0.4)'; x.lineWidth = 2;
+  x.beginPath(); x.moveTo(S*0.5, 6); x.lineTo(S*0.5, S-6); x.stroke();
+  // Keypad
+  x.fillStyle = 'rgba(0,180,255,0.25)';
+  x.fillRect(S*0.75, S*0.44, S*0.14, S*0.22);
+  x.strokeStyle = 'rgba(0,220,255,0.5)'; x.lineWidth=1;
+  x.strokeRect(S*0.75, S*0.44, S*0.14, S*0.22);
+  // Panel glow strip top
+  const dg = x.createLinearGradient(0, 0, S, 0);
+  dg.addColorStop(0,'rgba(0,200,255,0)'); dg.addColorStop(0.5,'rgba(0,200,255,0.3)'); dg.addColorStop(1,'rgba(0,200,255,0)');
+  x.fillStyle = dg; x.fillRect(0, 0, S, 5);
+});
+
+const TEX_WINDOW = makeTexture((x, S) => {
+  // Space outside
+  x.fillStyle = '#03000a';
+  x.fillRect(0, 0, S, S);
+  // Stars
+  for (let i = 0; i < 40; i++) {
+    const sx = Math.floor(Math.random()*S), sy = Math.floor(Math.random()*S);
+    const sr = 0.5 + Math.random()*1.2;
+    x.beginPath(); x.arc(sx, sy, sr, 0, Math.PI*2);
+    x.fillStyle = `rgba(220,210,255,${0.4+Math.random()*0.5})`; x.fill();
+  }
+  // Planet glimpse
+  const pg = x.createRadialGradient(S*0.7, S*0.3, 0, S*0.7, S*0.3, S*0.25);
+  pg.addColorStop(0,'rgba(60,120,200,0.8)'); pg.addColorStop(0.6,'rgba(30,80,160,0.4)'); pg.addColorStop(1,'rgba(0,0,0,0)');
+  x.fillStyle=pg; x.beginPath(); x.arc(S*0.7,S*0.3,S*0.25,0,Math.PI*2); x.fill();
+  // Window frame
+  x.strokeStyle = 'rgba(150,200,255,0.6)'; x.lineWidth = 5;
+  x.strokeRect(0, 0, S, S);
+  x.strokeStyle = 'rgba(150,200,255,0.25)'; x.lineWidth = 2;
+  x.strokeRect(8, 8, S-16, S-16);
+});
+
+const TEX_CRATE = makeTexture((x, S) => {
+  x.fillStyle = '#c8d4e0';
+  x.fillRect(0, 0, S, S);
+  x.strokeStyle = 'rgba(100,140,180,0.6)'; x.lineWidth = 3;
+  x.strokeRect(4, 4, S-8, S-8);
+  // Cross brace
+  x.lineWidth = 2; x.strokeStyle = 'rgba(100,140,180,0.35)';
+  x.beginPath(); x.moveTo(4,4); x.lineTo(S-4,S-4); x.stroke();
+  x.beginPath(); x.moveTo(S-4,4); x.lineTo(4,S-4); x.stroke();
+  // Label
+  x.fillStyle = 'rgba(80,120,180,0.4)';
+  x.fillRect(S*0.3, S*0.38, S*0.4, S*0.24);
+  x.font = `bold ${S*0.14}px monospace`;
+  x.fillStyle = 'rgba(60,100,160,0.7)';
+  x.textAlign = 'center'; x.fillText('VSH', S*0.5, S*0.55);
+});
+
+const TEX_FLOOR = makeTexture((x, S) => {
+  x.fillStyle = '#e8edf5';
+  x.fillRect(0, 0, S, S);
+  // Grid lines
+  x.strokeStyle = 'rgba(160,190,230,0.3)'; x.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    x.beginPath(); x.moveTo(i*S/4, 0); x.lineTo(i*S/4, S); x.stroke();
+    x.beginPath(); x.moveTo(0, i*S/4); x.lineTo(S, i*S/4); x.stroke();
+  }
+  // Center highlight
+  x.fillStyle = 'rgba(200,220,255,0.12)';
+  x.fillRect(S*0.25, S*0.25, S*0.5, S*0.5);
+});
+
+const TEX_CEIL = makeTexture((x, S) => {
+  x.fillStyle = '#f5f7fa';
+  x.fillRect(0, 0, S, S);
+  // Panel lines
+  x.strokeStyle = 'rgba(180,200,230,0.3)'; x.lineWidth = 1;
+  x.beginPath(); x.moveTo(0, S*0.5); x.lineTo(S, S*0.5); x.stroke();
+  x.beginPath(); x.moveTo(S*0.5, 0); x.lineTo(S*0.5, S); x.stroke();
+  // Light strip
+  const lg = x.createLinearGradient(S*0.3, 0, S*0.7, 0);
+  lg.addColorStop(0,'rgba(200,220,255,0)'); lg.addColorStop(0.5,'rgba(200,220,255,0.5)'); lg.addColorStop(1,'rgba(200,220,255,0)');
+  x.fillStyle=lg; x.fillRect(S*0.3, S*0.45, S*0.4, S*0.1);
+});
+
+// ── RAYCASTER ─────────────────────────────────────────
+const Z_BUFFER = new Float32Array(1920); // max screen width
+
+function getCell(mx, my) {
+  const r = Math.floor(my), c = Math.floor(mx);
+  if (r < 0 || r >= MAP_H || c < 0 || c >= MAP_W) return 1;
+  return MAP[r][c];
+}
+
+function getCellType(r, c) {
+  if (r < 0 || r >= MAP_H || c < 0 || c >= MAP_W) return 1;
+  return MAP[r][c];
+}
+
+function isDoor(type) { return type === 2 || type === 3; }
+function isSolid(mx, my) {
+  const type = getCell(mx, my);
+  if (type === 0) return false;
+  if (isDoor(type)) {
+    const k = doorKey(Math.floor(my), Math.floor(mx));
+    const d = doors[k];
+    return d ? d.open < 0.9 : true;
+  }
+  return true;
+}
+
+function castRay(px, py, angle, screenW) {
+  const dx = Math.cos(angle), dy = Math.sin(angle);
+  let mx = Math.floor(px), my = Math.floor(py);
+  const stepX = dx > 0 ? 1 : -1, stepY = dy > 0 ? 1 : -1;
+  const deltaX = Math.abs(1/dx), deltaY = Math.abs(1/dy);
+  let sideDistX = dx > 0 ? (mx+1-px)*deltaX : (px-mx)*deltaX;
+  let sideDistY = dy > 0 ? (my+1-py)*deltaY : (py-my)*deltaY;
+  let side = 0, dist = 0;
+  let wallType = 0, hitX = 0;
+
+  for (let step = 0; step < 64; step++) {
+    if (sideDistX < sideDistY) {
+      sideDistX += deltaX; mx += stepX; side = 0;
+    } else {
+      sideDistY += deltaY; my += stepY; side = 1;
+    }
+    wallType = getCellType(my, mx);
+    if (wallType > 0) {
+      // Partially open door — skip
+      if (isDoor(wallType)) {
+        const k = doorKey(my, mx);
+        const d = doors[k];
+        if (d && d.open > 0.9) { wallType = 0; continue; }
+      }
+      dist = side === 0 ? (mx - px + (1-stepX)/2) / dx : (my - py + (1-stepY)/2) / dy;
+      // Texture hit coordinate
+      if (side === 0) hitX = ((py + dist * dy) % 1 + 1) % 1;
+      else            hitX = ((px + dist * dx) % 1 + 1) % 1;
+      // Slide open door offset
+      if (isDoor(wallType)) {
+        const k = doorKey(my, mx);
+        const d = doors[k];
+        const slide = d ? d.open : 0;
+        hitX = (hitX + slide) % 1;
+        if (hitX < 0.01) { wallType = 0; continue; }
+      }
+      break;
+    }
+  }
+  return { dist, wallType, hitX, side };
+}
+
+function sampleTex(tex, u, v) {
+  const tx = Math.floor(u * TEX_SIZE) & (TEX_SIZE-1);
+  const ty = Math.floor(v * TEX_SIZE) & (TEX_SIZE-1);
+  // We can't pixel-sample a canvas easily — return the canvas and coords for drawImage
+  return { tex, tx, ty };
+}
+
+// Mirror framebuffer: render scene from reflected position
+let mirrorBuffer = null;
+
+function renderScene(ctx, px, py, angle, W, H, isMirrorPass) {
+  const halfH = H / 2;
+
+  // Clear
+  ctx.fillStyle = '#e0e8f0';
+  ctx.fillRect(0, 0, W, H);
+
+  // Floor and ceiling
+  // Simple gradient approach for floor/ceiling
+  const ceilG = ctx.createLinearGradient(0, 0, 0, halfH);
+  ceilG.addColorStop(0, '#f8fafc');
+  ceilG.addColorStop(1, '#dde8f5');
+  ctx.fillStyle = ceilG; ctx.fillRect(0, 0, W, halfH);
+
+  const floorG = ctx.createLinearGradient(0, halfH, 0, H);
+  floorG.addColorStop(0, '#d8e4f0');
+  floorG.addColorStop(1, '#c8d8ec');
+  ctx.fillStyle = floorG; ctx.fillRect(0, halfH, W, halfH);
+
+  // Ceiling light strip glow
+  const clg = ctx.createLinearGradient(W*0.3, 0, W*0.7, 0);
+  clg.addColorStop(0,'rgba(200,220,255,0)');
+  clg.addColorStop(0.5,'rgba(200,220,255,0.35)');
+  clg.addColorStop(1,'rgba(200,220,255,0)');
+  ctx.fillStyle=clg; ctx.fillRect(W*0.25, 0, W*0.5, halfH*0.2);
+
+  const numRays = W;
+  for (let col = 0; col < numRays; col++) {
+    const rayAngle = angle - FOV/2 + (col/numRays)*FOV;
+    const { dist, wallType, hitX, side } = castRay(px, py, rayAngle, numRays);
+    if (!wallType) { Z_BUFFER[col] = 9999; continue; }
+    Z_BUFFER[col] = dist;
+
+    const corrDist = dist * Math.cos(rayAngle - angle);
+    const lineH = Math.min(H * 2.2, (H / corrDist));
+    const drawStart = halfH - lineH / 2;
+
+    // Pick texture
+    let tex = TEX_WALL;
+    if (wallType === 2 || wallType === 3) tex = TEX_DOOR;
+    else if (wallType === 4) tex = TEX_WINDOW;
+    else if (wallType === 5) tex = null; // mirror — handled specially
+    else if (wallType === 6) tex = TEX_CRATE;
+
+    // Shading
+    const shade = Math.max(0.35, 1 - corrDist * 0.12) * (side === 1 ? 0.78 : 1.0);
+
+    if (wallType === 5 && mirrorBuffer && !isMirrorPass) {
+      // Sample from mirror buffer
+      const mirrorCol = Math.floor((hitX) * mirrorBuffer.width);
+      ctx.globalAlpha = 0.88 * shade;
+      ctx.drawImage(mirrorBuffer,
+        Math.max(0, mirrorCol), 0, 1, mirrorBuffer.height,
+        col, drawStart, 1, lineH);
+      ctx.globalAlpha = 1;
+      // Mirror frame overlay
+      ctx.fillStyle = `rgba(180,210,255,${0.25 * (1 - shade)})`;
+      ctx.fillRect(col, drawStart, 1, lineH);
+    } else if (tex) {
+      const texCol = Math.floor(hitX * TEX_SIZE);
+      ctx.globalAlpha = shade;
+      ctx.drawImage(tex, texCol, 0, 1, TEX_SIZE, col, drawStart, 1, lineH);
+      ctx.globalAlpha = 1;
+      // Fog
+      if (corrDist > 3) {
+        ctx.fillStyle = `rgba(220,235,255,${Math.min(0.7, (corrDist - 3) * 0.15)})`;
+        ctx.fillRect(col, drawStart, 1, lineH);
+      }
+    }
+  }
+
+  // Overhead light bloom (ceiling center strip)
+  if (!isMirrorPass) {
+    const bloom = ctx.createRadialGradient(W*0.5, 0, 0, W*0.5, 0, H*0.6);
+    bloom.addColorStop(0, 'rgba(200,220,255,0.08)');
+    bloom.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = bloom; ctx.fillRect(0, 0, W, H);
+  }
+}
+
+// ── PLAYER UPDATES ────────────────────────────────────
+function tryMove(nx, ny) {
+  const r = PLAYER_RADIUS;
+  if (!isSolid(nx + r, player.y) && !isSolid(nx - r, player.y) &&
+      !isSolid(nx, player.y + r) && !isSolid(nx, player.y - r)) {
+    player.x = nx;
+  }
+  if (!isSolid(player.x + r, ny) && !isSolid(player.x - r, ny) &&
+      !isSolid(player.x, ny + r) && !isSolid(player.x, ny - r)) {
+    player.y = ny;
+  }
+}
+
+function checkDoorInteract() {
+  // Check cells around player for doors
+  for (const [dr, dc] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+    const r = Math.floor(player.y) + dr, c = Math.floor(player.x) + dc;
+    const type = getCellType(r, c);
+    if (isDoor(type)) {
+      const k = doorKey(r, c);
+      if (doors[k] && !doors[k].opening) {
+        doors[k].opening = true;
+      }
+    }
+  }
+}
+
+function updateGame(dt) {
+  if (!gameRunning) return;
+
+  // Mouse look
+  if (mouseDX !== 0) {
+    player.angle += mouseDX * 0.0022;
+    mouseDX = 0;
+  }
+
+  // Movement
+  const fwd  = (keys['w'] || keys['arrowup'])    ? 1 : (keys['s'] || keys['arrowdown'])  ? -1 : 0;
+  const strafe = (keys['a'] || keys['arrowleft']) ? -1 : (keys['d'] || keys['arrowright']) ?  1 : 0;
+
+  if (fwd !== 0) {
+    tryMove(player.x + Math.cos(player.angle) * fwd * MOVE_SPEED,
+            player.y + Math.sin(player.angle) * fwd * MOVE_SPEED);
+    player.bobPhase += 0.14;
+  }
+  if (strafe !== 0) {
+    const sa = player.angle + Math.PI * 0.5;
+    tryMove(player.x + Math.cos(sa) * strafe * MOVE_SPEED * 0.75,
+            player.y + Math.sin(sa) * strafe * MOVE_SPEED * 0.75);
+    player.bobPhase += 0.09;
+  }
+
+  player.breathPhase += 0.006;
+
+  // Door auto-open
+  checkDoorInteract();
+  for (const k in doors) {
+    const d = doors[k];
+    if (d.opening && d.open < 1) d.open = Math.min(1, d.open + 0.025);
+  }
+}
+
+// ── RENDER HUD ────────────────────────────────────────
+function renderHUD(ctx, W, H) {
+  // Helmet vignette
+  const hv = ctx.createRadialGradient(W*0.5, H*0.52, H*0.28, W*0.5, H*0.52, H*0.72);
+  hv.addColorStop(0, 'rgba(0,0,0,0)');
+  hv.addColorStop(0.75, 'rgba(0,5,15,0.08)');
+  hv.addColorStop(1, 'rgba(0,5,20,0.78)');
+  ctx.fillStyle = hv; ctx.fillRect(0, 0, W, H);
+
+  // Crosshair
+  ctx.strokeStyle = 'rgba(0,220,255,0.55)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(W*0.5-10, H*0.5); ctx.lineTo(W*0.5-4, H*0.5); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W*0.5+4, H*0.5); ctx.lineTo(W*0.5+10, H*0.5); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W*0.5, H*0.5-10); ctx.lineTo(W*0.5, H*0.5-4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W*0.5, H*0.5+4); ctx.lineTo(W*0.5, H*0.5+10); ctx.stroke();
+  // Crosshair center dot
+  ctx.fillStyle = 'rgba(0,220,255,0.6)';
+  ctx.beginPath(); ctx.arc(W*0.5, H*0.5, 1.5, 0, Math.PI*2); ctx.fill();
+
+  ctx.font = '11px "Share Tech Mono"';
+  // Bottom-left HUD
+  ctx.fillStyle = 'rgba(0,255,204,0.5)';
+  ctx.fillText('O₂  ████████░░  82%', W*0.035, H*0.91);
+  ctx.fillStyle = 'rgba(0,255,204,0.25)';
+  ctx.fillText('SUIT PRESSURE NOMINAL', W*0.035, H*0.945);
+
+  // Bottom-right HUD
+  ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(100,180,255,0.45)';
+  ctx.fillText('DECK 3  ·  CORRIDOR B', W*0.965, H*0.91);
+  ctx.fillStyle = 'rgba(100,180,255,0.22)';
+  ctx.fillText('VS HERALD  ·  SOL SYSTEM', W*0.965, H*0.945);
+  ctx.textAlign = 'left';
+
+  // Lens flare on visor top
+  const lf = ctx.createRadialGradient(W*0.38, H*0.06, 0, W*0.38, H*0.06, W*0.18);
+  lf.addColorStop(0,'rgba(255,255,255,0.04)'); lf.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=lf; ctx.fillRect(0,0,W,H*0.25);
+
+  // Click to look prompt
+  if (!pointerLocked) {
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.font = '13px "Share Tech Mono"';
+    ctx.fillText('CLICK TO LOOK AROUND', W*0.5, H*0.5 + 38);
+    ctx.font = '10px "Share Tech Mono"';
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    ctx.fillText('WASD · MOVE   MOUSE · LOOK   AUTO-OPEN DOORS', W*0.5, H*0.5 + 58);
+    ctx.textAlign = 'left';
+  }
+
+  // Scanlines
+  for (let sy = 0; sy < H; sy += 3) {
+    ctx.fillStyle = 'rgba(0,0,0,0.04)';
+    ctx.fillRect(0, sy, W, 1);
+  }
+}
+
+// ── GAME LOOP ─────────────────────────────────────────
+let lastGameTime = 0;
+function gameLoop(ts) {
+  const dt = Math.min(ts - lastGameTime, 50); lastGameTime = ts;
+
+  if (gameRunning) {
+    updateGame(dt);
+    const GW = gameCanvas.width || window.innerWidth;
+    const GH = gameCanvas.height || window.innerHeight;
+    const bob = Math.sin(player.bobPhase) * GH * 0.008;
+    const breathBob = Math.sin(player.breathPhase) * GH * 0.002;
+
+    // Find mirror wall position in map to compute reflected angle
+    // Mirror is at map[4][4] — player reflects across x=4.5
+    const mirrorX = 4.0; // column of mirror cell
+    const reflAngle = Math.PI - player.angle; // reflect horizontal
+    const reflPX = 2 * mirrorX - player.x;
+    const reflPY = player.y;
+
+    // Render mirror pass to offscreen buffer
+    if (!mirrorBuffer || mirrorBuffer.width !== Math.floor(GW * 0.5)) {
+      mirrorBuffer = document.createElement('canvas');
+      mirrorBuffer.width = Math.floor(GW * 0.5);
+      mirrorBuffer.height = GH;
+    }
+    const mCtx = mirrorBuffer.getContext('2d');
+    renderScene(mCtx, reflPX, reflPY, reflAngle, mirrorBuffer.width, GH, true);
+
+    // Main scene
+    gCtx.save();
+    gCtx.translate(0, bob + breathBob);
+    renderScene(gCtx, player.x, player.y, player.angle, GW, GH, false);
+    gCtx.restore();
+
+    renderHUD(gCtx, GW, GH);
+  }
+  requestAnimationFrame(gameLoop);
+}
+requestAnimationFrame(gameLoop);
+
+// ── INPUT ─────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  keys[e.key.toLowerCase()] = true;
+});
+document.addEventListener('keyup', e => {
+  keys[e.key.toLowerCase()] = false;
+});
+
+gameCanvas.addEventListener('click', () => {
+  if (gameRunning && !pointerLocked) {
+    gameCanvas.requestPointerLock();
+  }
+});
+
+document.addEventListener('pointerlockchange', () => {
+  pointerLocked = document.pointerLockElement === gameCanvas;
+});
+
+document.addEventListener('mousemove', e => {
+  if (pointerLocked && gameRunning) {
+    mouseDX += e.movementX;
+  }
+});
+
+// ── CUTSCENE ──────────────────────────────────────────
+const BRIEFING_LINES = [
+  { header: '⬡ MISSION BRIEFING — DAY 1', text: 'You are aboard the VS HERALD, a class-IV exploration vessel operating under contract with the Outer Systems Acquisitions Bureau.' },
+  { header: null, text: 'Your mission: descend to the surface of KEPLER-7G and recover alien artefacts logged by the automated survey probe three weeks ago.' },
+  { header: null, text: 'The probe went silent on day four. No distress signal. No debris field. Just silence.' },
+  { header: '⬡ RULES OF ENGAGEMENT', text: 'You have been allocated one cycle — seven ship-days — to complete the retrieval. Your oxygen reserves and suit battery are finite.' },
+  { header: null, text: 'Document everything. The Bureau pays a premium for footage of anomalous phenomena. The more unsettling, the higher the payout.' },
+  { header: '⬡ ONE FINAL NOTE', text: 'The Bureau accepts no liability for crew loss, psychological trauma, or contact with non-catalogued entities. You signed the waiver.' },
+  { header: null, text: 'Good luck out there. You\'re going to need it.' },
+];
+
+let cutsceneLine = 0;
+let cutsceneTyping = false;
+let cutsceneCharIdx = 0;
+let cutsceneTypingInterval = null;
+let cutsceneAdvanceTimeout = null;
+let cutsceneSkipped = false;
+
+function startCutscene() {
+  cutsceneLine = 0; cutsceneCharIdx = 0; cutsceneSkipped = false;
+  document.getElementById('cutsceneOverlay').classList.add('visible');
+  typeLine(BRIEFING_LINES[0]);
+}
+
+function typeLine(line) {
+  cutsceneTyping = true;
+  const headerEl = document.getElementById('cutsceneHeader');
+  const bodyEl = document.getElementById('cutsceneBody');
+  if (line.header) headerEl.textContent = line.header;
+  bodyEl.innerHTML = '';
+  let i = 0;
+  const full = line.text;
+  clearInterval(cutsceneTypingInterval);
+  cutsceneTypingInterval = setInterval(() => {
+    i++;
+    bodyEl.innerHTML = full.slice(0, i) + '<span class="cursor"></span>';
+    if (i >= full.length) {
+      clearInterval(cutsceneTypingInterval);
+      cutsceneTyping = false;
+      bodyEl.innerHTML = full;
+      // Auto-advance after a pause
+      cutsceneAdvanceTimeout = setTimeout(advanceCutscene, 3200);
+    }
+  }, 28);
+}
+
+function advanceCutscene() {
+  cutsceneLine++;
+  if (cutsceneLine >= BRIEFING_LINES.length) {
+    endCutscene(); return;
+  }
+  typeLine(BRIEFING_LINES[cutsceneLine]);
+}
+
+function skipCutscene() {
+  clearInterval(cutsceneTypingInterval);
+  clearTimeout(cutsceneAdvanceTimeout);
+  // If mid-typing, complete this line first then wait for click
+  if (cutsceneTyping) {
+    const line = BRIEFING_LINES[cutsceneLine];
+    document.getElementById('cutsceneBody').innerHTML = line.text;
+    cutsceneTyping = false;
+    cutsceneAdvanceTimeout = setTimeout(advanceCutscene, 800);
+  } else {
+    endCutscene();
+  }
+}
+
+function endCutscene() {
+  clearInterval(cutsceneTypingInterval);
+  clearTimeout(cutsceneAdvanceTimeout);
+  const overlay = document.getElementById('cutsceneOverlay');
+  overlay.style.transition = 'opacity .8s ease';
+  overlay.style.opacity = '0';
+  setTimeout(() => {
+    overlay.classList.remove('visible');
+    overlay.style.opacity = '';
+    overlay.style.transition = '';
+  }, 800);
+}
+
+// ── START NEW GAME ────────────────────────────────────
+function startNewGame() {
+  document.getElementById('soloScreen').classList.remove('open');
+  hideCloseBtn();
+
+  // Reset player to spawn position
+  player.x = 1.5; player.y = 1.5;
+  player.angle = 0;
+  player.bobPhase = 0; player.breathPhase = 0;
+  // Reset all doors
+  for (const k in doors) { doors[k].open = 0; doors[k].opening = false; }
+
+  const fb = document.getElementById('fadeBlack');
+  fb.classList.add('on');
+
+  setTimeout(() => {
+    mode = 'game';
+    resizeGameCanvas();
+    gameRunning = true;
+    gameCanvas.classList.add('visible');
+    shipCanvas.classList.remove('visible');
+    canvas.style.opacity = '0';
+
+    fb.style.transition = 'opacity 1s ease';
+    fb.style.opacity = '0';
+    setTimeout(() => {
+      fb.classList.remove('on');
+      fb.style.transition = '';
+      fb.style.opacity = '';
+    }, 1000);
+
+    setTimeout(() => startCutscene(), 1400);
+  }, 1300);
 }
 
 function openFriends(){
